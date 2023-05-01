@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 
 
-class Preparation:
-    def data_preparation(input):
+class Cleaning:
+    def cleaning(data, method):
         print("Data preparation...")
         # Removing all duplicates
-        data = input.drop_duplicates()
+        data = data.drop_duplicates()
 
         # Shuffling rows of dataframe, done due to consecutive dataset entry being similar to each other
         sampler = np.random.permutation(len(data))

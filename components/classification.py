@@ -16,4 +16,4 @@ class Classification:
         print("Prediction...")
         prediction = model.predict(x_testing)
         print("Total time: " + str(time.time() - start)[0:7] + "s\n")
-        return prediction
+        return prediction, model

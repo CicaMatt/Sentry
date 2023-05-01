@@ -1,0 +1,25 @@
+---
+
+dataset: path/to/dataset.csv
+
+configurations:
+  - 0:
+      Data Cleaning: dataimputation
+      Feature Scaling: zScore
+      Feature Selection: kbest
+      Data Balancing: smote
+      Hyper-parameters Optimization: Random Search
+      Classifier: svm
+      Validation: ttsplit
+      Metric: accuracy
+      Explaination Method: confusionmatrix
+  - 1:
+      Data Cleaning: dataimputation
+      Feature Scaling: zScore
+      Feature Selection: kbest
+      Data Balancing: smote
+      Hyper-parameters Optimization: Random Search
+      Classifier: svm
+      Validation: ttsplit
+      Metric: precision
+      Explaination Method: confusionmatrix
