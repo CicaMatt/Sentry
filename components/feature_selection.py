@@ -10,13 +10,12 @@ class Selection:
             data = VarianceThreshold().fit_transform(data)
             return data
 
-        #KBest
+        # KBest
         elif method == "KBest":
             data = SelectKBest(chi2, k=80).fit_transform(data, labels_full)
             return data
 
-        #Pearson's Correlation
-
+        # Pearson's Correlation
         else:
             cor_support, cor_feature = Selection.cor_selector(X, labels_full, num_feats)
             return cor_feature

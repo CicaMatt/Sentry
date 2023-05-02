@@ -1,7 +1,8 @@
-from components.Balancing import Balancing
-from components.Cleaning import Cleaning
-from components.Scaling import Scaling
-from components.Selection import Selection
+from components.data_balancing import Balancing
+from components.data_cleaning import Cleaning
+from components.hp_optimization import HP_Optimization
+from components.feature_scaling import Scaling
+from components.feature_selection import Selection
 from components.metrics import Metrics
 from components.classification import Classification
 from components.setup import Setup
@@ -24,17 +25,17 @@ class Dispatcher:
         # Feature Scaling
         data = Scaling.scaling(data, labels_full, self.data['Feature Scaling'])
 
-        #Feature Selection
+        # Feature Selection
         data = Selection.selection(data, self.data['Feature Selection'])
 
-        #Data Balancing
+        # Data Balancing
         data = Balancing.dataBalancing(data, self.data['Data Balancing'])
 
         # Validation setup
         x_training, x_testing, y_training, y_testing = Validation.data_validation(data, labels_full)
 
-        #Hyper-parameters Optimization
-
+        # Hyperparameters optimization
+        model = HP_Optimization.hp_optimization(self.data['Classifier'])
 
         # Model classification
         prediction, classifier = Classification.data_classification(x_training, x_testing, y_training, y_testing, self.data['Classifier'])
@@ -45,4 +46,5 @@ class Dispatcher:
         # Metrics calculation
         Metrics.metrics(y_testing, prediction, "Metrics", 0)
 
-        #Explaination Method
+        # Model explanation
+        Explainability.explainability(model, x_training, y_training, x_testing, y_testing)

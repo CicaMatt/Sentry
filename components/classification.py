@@ -12,7 +12,7 @@ class Classification:
         model.fit(x_training, y_training)
         print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
 
-        # PREDICTION
+        # Prediction phase
         print("Prediction...")
         prediction = model.predict(x_testing)
         print("Total time: " + str(time.time() - start)[0:7] + "s\n")
