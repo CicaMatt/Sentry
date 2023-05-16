@@ -3,7 +3,7 @@ from sklearn import neighbors
 
 
 class Classification:
-    def data_classification(x_training, x_testing, y_training, y_testing):
+    def data_classification(x_training, x_testing, y_training, y_testing, classifier):
         # Training phase
         print("Training...")
         model = neighbors.KNeighborsClassifier(n_neighbors=5)

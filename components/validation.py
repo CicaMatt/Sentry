@@ -2,7 +2,7 @@ from sklearn.model_selection import train_test_split
 
 
 class Validation:
-    def data_validation(data, labels_full):
+    def data_validation(data, labels_full, method):
 
         # .values transform data in a tabular DataFrame format into a multidimensional NumPy array
 

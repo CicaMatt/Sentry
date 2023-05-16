@@ -5,7 +5,7 @@ import numpy as np
 import xgboost
 
 class Explainability:
-    def explainability(self, model, X_train, y_train, X_test, y_test):
+    def explainability(self, model, X_train, y_train, X_test, y_test, method):
         # SHAP
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(X_train, y_train)

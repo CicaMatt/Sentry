@@ -1,0 +1,2 @@
+class YAMLFileFormatException(Exception):
+    pass

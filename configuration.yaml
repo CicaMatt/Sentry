@@ -1,14 +1,13 @@
 ---
 
-dataset: path/to/dataset.csv
+dataset: default
 
 configurations:
   - 0:
-      Data Cleaning: dataimputation
       Feature Scaling: zScore
       Feature Selection: kbest
       Data Balancing: smote
-      Hyper-parameters Optimization: Random Search
+      Hyper-parameters Optimization: RandomSearch
       Classifier: svm
       Validation: ttsplit
       Metric: accuracy
@@ -18,7 +17,7 @@ configurations:
       Feature Scaling: zScore
       Feature Selection: kbest
       Data Balancing: smote
-      Hyper-parameters Optimization: Random Search
+      Hyper-parameters Optimization: RandomSearch
       Classifier: svm
       Validation: ttsplit
       Metric: precision
