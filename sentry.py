@@ -29,54 +29,63 @@ def main():
         copy = dict(data)
         for pipeline in copy['configurations']:
             for i in pipeline:
+                # Data Cleaning
                 if not "Data Cleaning" in pipeline[i]:
                     data['configurations'][i][i]["Data Cleaning"] = "default"
                 else:
                     cleaning = pipeline[i]["Data Cleaning"].lower()
                     if not (cleaning == "dataimputation" or cleaning == "shuffling" or cleaning == "duplicatesremoval"):
                         raise YAMLFileFormatException("Wrong Data Cleaning input inserted")
+                # Feature Scaling
                 if not "Feature Scaling" in pipeline[i]:
                     data['configurations'][i][i]["Feature Scaling"] = "default"
                 else:
                     scaling = pipeline[i]["Feature Scaling"].lower()
                     if not (scaling == "zscore" or scaling == "minmax"):
                         raise YAMLFileFormatException("Wrong Feature Scaling input inserted")
+                # Feature Selection
                 if not "Feature Selection" in pipeline[i]:
                     data['configurations'][i][i]["Feature Selection"] = "default"
                 else:
                     selection = pipeline[i]["Feature Selection"].lower()
                     if not (selection == "kbest" or selection == "variancethreshold" or selection == "pearsoncorrelation"):
                         raise YAMLFileFormatException("Wrong Feature Selection input inserted")
+                # Data Balancing
                 if not "Data Balancing" in pipeline[i]:
                     data['configurations'][i][i]["Data Balancing"] = "default"
                 else:
                     balancing = pipeline[i]["Data Balancing"].lower()
                     if not (balancing == "smote" or balancing == "nearmiss" or balancing == "undersampling" or balancing == "oversampling"):
                         raise YAMLFileFormatException("Wrong Data Balancing input inserted")
+                # HP Optimization
                 if not "Hyper-parameters Optimization" in pipeline[i]:
                     data['configurations'][i][i]["Hyper-parameters Optimization"] = "default"
                 else:
                     optim = pipeline[i]["Hyper-parameters Optimization"].lower()
                     if not (optim == "randomsearch" or optim == "gridsearch" or optim == "bayessearch"):
                         raise YAMLFileFormatException("Wrong Hyper-parameters Optimization input inserted")
+                # Classification
                 if not "Classifier" in pipeline[i]:
                     data['configurations'][i][i]["Classifier"] = "default"
                 else:
                     classifier = pipeline[i]["Classifier"].lower()
-                    if not (classifier == "svm" or classifier == "RandomForest" or classifier == "decisiontree"):
+                    if not (classifier == "svm" or classifier == "RandomForest" or classifier == "kneighbors"):
                         raise YAMLFileFormatException("Wrong Classifier input inserted")
+                # Validation
                 if not "Validation" in pipeline[i]:
                     data['configurations'][i][i]["Validation"] = "default"
                 else:
                     validation = pipeline[i]["Validation"].lower()
                     if not (validation == "ttsplit" or validation == "kfold" or validation == "nestedfold"):
                         raise YAMLFileFormatException("Wrong Validation input inserted")
+                # Metrics
                 if not "Metric" in pipeline[i]:
                     data['configurations'][i][i]["Metric"] = "default"
                 else:
                     metric = pipeline[i]["Metric"].lower()
                     if not (metric == "accuracy" or metric == "precision" or metric == "recall"):
                         raise YAMLFileFormatException("Wrong Metric input inserted")
+                # Explainability
                 if not "Explaination Method" in pipeline[i]:
                     data['configurations'][i][i]["Data Cleaning"] = "default"
                 else:

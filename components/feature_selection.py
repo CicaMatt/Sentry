@@ -5,7 +5,7 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
 class Selection:
 
     def selection(data, method):
-        # Variance Threshold"
+        # Variance Threshold
         if method == "Variance Threshold":
             data = VarianceThreshold().fit_transform(data)
             return data

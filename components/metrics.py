@@ -39,3 +39,5 @@ class Metrics:
         plt.ylabel('Truth Values')
         plt.xlabel('Predicted Values')
         plt.show()
+
+        return accuracy_score

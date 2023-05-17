@@ -9,6 +9,7 @@ from components.classification import Classification
 from components.setup import Setup
 from components.validation import Validation
 
+
 class Dispatcher:
 
     def __init__(self, data, dataset):
@@ -16,7 +17,6 @@ class Dispatcher:
         self.datasetPath = dataset
 
     def start(self):
-
         # Data setup
         data = Setup.data_setup(self.datasetPath)
 
@@ -32,20 +32,41 @@ class Dispatcher:
         # Data Balancing
         data = Balancing.dataBalancing(data, self.data['Data Balancing'])
 
-        # Validation setup
-        x_training, x_testing, y_training, y_testing = Validation.data_validation(data, labels_full, self.data['Validation'])
-
         # Hyperparameters optimization
         model = HP_Optimization.hp_optimization(self.data['Hyper-parameters Optimization'])
 
-        # Model classification
-        prediction, classifier = Classification.data_classification(x_training, x_testing, y_training, y_testing, self.data['Classifier'])
+        # Validation setup
+        if (self.data['Validation'] == "ttsplit"):
+            x_training, x_testing, y_training, y_testing = Validation.data_validation(data, labels_full,
+                                                                                      self.data['Validation'])
 
-        #dobbiamo salvare il modello
-        self.classifier = classifier
+            # Model classification
+            prediction, classifier = Classification.data_classification(x_training, x_testing, y_training, y_testing,
+                                                                        self.data['Classifier'])
 
-        # Metrics calculation
-        Metrics.metrics(y_testing, prediction, self.data['Metric'], 0)
+            # dobbiamo salvare il modello
+            self.classifier = classifier
+
+            # Metrics calculation
+            Metrics.metrics(y_testing, prediction, self.data['Metric'], 0)
+
+        else:
+            indexes, training_data, labels = Validation.data_validation(data, labels_full, self.data['Validation'])
+            best_accuracy = 0
+
+            for training_index, testing_index in indexes:
+                x_training, x_testing = training_data[training_index], training_data[testing_index]
+                y_training, y_testing = labels[training_index], labels[testing_index]
+
+                prediction, classifier = Classification.data_classification(x_training, x_testing, y_training,
+                                                                            y_testing, self.data['Classifier'])
+
+                # Metrics calculation
+                accuracy = Metrics.metrics(y_testing, prediction, self.data['Metric'], 0)
+                if accuracy > best_accuracy:
+                    best_accuracy = accuracy
+                    self.classifier = classifier
 
         # Model explanation
-        Explainability.explainability(model, x_training, y_training, x_testing, y_testing, self.data['Explaination Method'])
+        Explainability.explainability(model, x_training, y_training, x_testing, y_testing,
+                                      self.data['Explaination Method'])
