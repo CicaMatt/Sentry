@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 from pydriller import Repository
 from pydriller.metrics.process.change_set import ChangeSet
@@ -20,30 +22,30 @@ def main():
         print(vulnerable_hash)
         print(fixed_hash)
 
-
-
         # Removal of user and commit hash from link
         repo_link = commit_link[:int(len(commit_link) - 48)]
         print(repo_link)
 
-        # for commit in Repository(repo_link, single=vulnerable_hash).traverse_commits():
+        # for commit in Repository(repo_link, single=vulnerable_hash, clone_repo_to="C:/Users/Matteo Cicalese/Downloads/dir_temp").traverse_commits():
         #     print(commit.dmm_unit_size)
         #     print(commit.dmm_unit_complexity)
         #     print(commit.dmm_unit_interfacing)
         #
-        # for commit in Repository(repo_link, single=fixed_hash).traverse_commits():
+        # for commit in Repository(repo_link, single=fixed_hash, clone_repo_to="C:/Users/Matteo Cicalese/Downloads/dir_temp").traverse_commits():
         #     print(commit.dmm_unit_size)
         #     print(commit.dmm_unit_complexity)
         #     print(commit.dmm_unit_interfacing)
 
-
-        change_set = ChangeSet(path_to_repo=repo_link,
-                               from_commit=vulnerable_hash,
-                               to_commit=fixed_hash)
-        maximum = change_set.max()
-        average = change_set.avg()
-        print('Maximum number of files committed together: {}'.format(maximum))
-        print('Average number of files committed together: {}'.format(average))
+        try:
+            change_set = ChangeSet(path_to_repo=repo_link,
+                                   from_commit=vulnerable_hash,
+                                   to_commit=fixed_hash)
+            maximum = change_set.max()
+            average = change_set.avg()
+            print('Maximum number of files committed together: {}'.format(maximum))
+            print('Average number of files committed together: {}'.format(average))
+        except Exception as e:
+            print("Questa repo é stefanizzata")
 
         # code_churn = CodeChurn(path_to_repo='path/to/the/repo',
         #                        from_commit='from commit hash',
