@@ -13,44 +13,35 @@ from pydriller.metrics.process.lines_count import LinesCount
 
 
 def metric_calculation_and_writing(start, to, commit_link, writer, label):
-
+    print("Calcolo metriche...")
     code_churn = CodeChurn(path_to_repo=commit_link,
                            from_commit=start,
                            to_commit=to)
     files_count = code_churn.count()
     files_max = code_churn.max()
     files_avg = code_churn.avg()
-    print('Total code churn for each file: {}'.format(files_count), files_count.keys())
-    print('Maximum code churn for each file: {}'.format(files_max))
-    print('Average code churn for each file: {}'.format(files_avg))
-
     filename = files_count.keys()
 
     commits_count = CommitsCount(path_to_repo=commit_link,
                                  from_commit=start,
                                  to_commit=to)
     numCommit = commits_count.count()
-    print('Files: {}'.format(numCommit))
 
     contributors_count = ContributorsCount(path_to_repo=commit_link,
                                            from_commit=start,
                                            to_commit=to)
     count = contributors_count.count()
     minor = contributors_count.count_minor()
-    print('Number of contributors per file: {}'.format(count))
-    print('Number of "minor" contributors per file: {}'.format(minor))
 
     contributors_experience = ContributorsExperience(path_to_repo=commit_link,
                                                      from_commit=start,
                                                      to_commit=to)
     contrExp = contributors_experience.count()
-    print('contrExp: {}'.format(contrExp))
 
     hunks_count = HunksCount(path_to_repo=commit_link,
                              from_commit=start,
                              to_commit=to)
     numHunks = hunks_count.count()
-    print('Num Hunks: {}'.format(numHunks))
 
     lines_count = LinesCount(path_to_repo=commit_link,
                              from_commit=start,
@@ -59,16 +50,10 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
     added_count = lines_count.count_added()
     added_max = lines_count.max_added()
     added_avg = lines_count.avg_added()
-    print('Total lines added per file: {}'.format(added_count))
-    print('Maximum lines added per file: {}'.format(added_max))
-    print('Average lines added per file: {}'.format(added_avg))
 
     removed_count = lines_count.count_removed()
     removed_max = lines_count.max_removed()
     removed_avg = lines_count.avg_removed()
-    print('Total lines removed per file: {}'.format(removed_count))
-    print('Maximum lines removed per file: {}'.format(removed_max))
-    print('Average lines removed per file: {}'.format(removed_avg))
 
     for file in filename:
         writer.writerow([file, files_count.get(file), files_max.get(file), files_avg.get(file), numCommit.get(file),
@@ -97,6 +82,8 @@ def main():
                 pre_fix_hash = None
                 last_hash = None
 
+                print("Repo link: ", commit_link)
+
                 # for commit in Repository(repo_link, single=vulnerable_hash).traverse_commits():
                 #     print(commit.dmm_unit_size)
                 #     print(commit.dmm_unit_complexity)
@@ -109,12 +96,13 @@ def main():
 
                 repository = Repository(commit_link, single=fixed_hash)
                 for commit in repository.traverse_commits():
-                    if repository.git.total_commits() > 100000:
+                    if repository.git.total_commits() > 40000:
                         stop = 1
                         break
                     # commit vulnerabile
+                    print("Trovo il commit vulnerabile più obsoleto")
                     buggy_commits = repository.git.get_commits_last_modified_lines(commit)
-                    print(buggy_commits)
+
                     for key, value in buggy_commits.items():
                         vulnerable_commit = repository.git.get_commit(value.pop())
                         for i in range(len(value)):
@@ -147,7 +135,8 @@ def main():
 
                 metric_calculation_and_writing(vulnerable_hash, pre_fix_hash, commit_link, writer, 1)
                 metric_calculation_and_writing(fixed_hash, last_hash, commit_link, writer, 0)
-            except:
+            except Exception as e:
+                print(e.__cause__)
                 continue
 
 
