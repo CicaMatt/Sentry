@@ -1,5 +1,7 @@
 import csv
 import shutil
+import sys
+
 import git
 import pandas as pd
 from pydriller import Repository, Git
@@ -10,6 +12,7 @@ from pydriller.metrics.process.contributors_count import ContributorsCount
 from pydriller.metrics.process.contributors_experience import ContributorsExperience
 from pydriller.metrics.process.hunks_count import HunksCount
 from pydriller.metrics.process.lines_count import LinesCount
+from github import Github
 
 
 def metric_calculation_and_writing(start, to, commit_link, writer, label):
@@ -62,6 +65,19 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
                          removed_max.get(file), removed_avg.get(file), label])
 
 
+def get_commit_count(repo_link):
+
+    parts = repo_link.split("/")
+    username = parts[-2]
+    repository = parts[-1]
+
+    g = Github()
+    repo = g.get_repo(f"{username}/{repository}")
+    commit_count = repo.get_commits().totalCount
+
+    return commit_count
+
+
 def main():
     cve = pd.read_csv("./data/CVEfixes.csv")
     filename = 'dataset.csv'
@@ -74,7 +90,6 @@ def main():
                          "AvgLinesAdded", "#LinesRemoved", "MaxLinesRemoved", "AvgLinesRemoved", "vulnerable"])
 
         for i in range(len(cve)):
-            stop = 0
             try:
                 commit_link = cve.iloc[i]['repository']
                 fixed_hash = cve.iloc[i]['fixed_hash']
@@ -82,7 +97,7 @@ def main():
                 pre_fix_hash = None
                 last_hash = None
 
-                print("Repo link: ", commit_link)
+                print("\n\nRepo link: ", commit_link)
 
                 # for commit in Repository(repo_link, single=vulnerable_hash).traverse_commits():
                 #     print(commit.dmm_unit_size)
@@ -94,11 +109,13 @@ def main():
                 #     print(commit.dmm_unit_complexity)
                 #     print(commit.dmm_unit_interfacing)
 
+                num_commit = get_commit_count(commit_link)
+                if num_commit > 40000:
+                    print("\nSkippata repo con numero di commit: ", num_commit)
+                    continue
+
                 repository = Repository(commit_link, single=fixed_hash)
                 for commit in repository.traverse_commits():
-                    if repository.git.total_commits() > 40000:
-                        stop = 1
-                        break
                     # commit vulnerabile
                     print("Trovo il commit vulnerabile più obsoleto")
                     buggy_commits = repository.git.get_commits_last_modified_lines(commit)
@@ -113,8 +130,9 @@ def main():
                                 vulnerable_commit = commit_new
                         vulnerable_hash = vulnerable_commit.hash
 
-                    # commit precedente al commit fixato: converto il generator di tutti i commit in un oggetto list, poi prendo
-                    # l'indice del commit fixato all'interno della lista in modo da ottenere il commit precedente al fixato
+                    # commit precedente al commit fixato: converto il generator di tutti i commit in un oggetto list,
+                    # poi prendo l'indice del commit fixato all'interno della lista in modo da ottenere il commit
+                    # precedente al fixato
                     commit_generator = repository.git.get_list_commits()
                     array_commit = list(commit_generator)
                     index_commit = array_commit.index(repository.git.get_commit(fixed_hash))
@@ -125,9 +143,10 @@ def main():
                     last_commit = repository.git.get_head()
                     last_hash = last_commit.hash
 
-                if stop:
-                    print("Skippata repo con numero di commit: ", repository.git.total_commits())
-                    continue
+                    if vulnerable_hash is None or last_hash is None or pre_fix_hash is None:
+                        print("\nErrore nella ricerca dei commit \n")
+                        continue
+
                 print("Fixed hash: ", fixed_hash)
                 print("Pre fix hash: ", pre_fix_hash)
                 print("Vulnerable hash: ", vulnerable_hash)
@@ -136,7 +155,7 @@ def main():
                 metric_calculation_and_writing(vulnerable_hash, pre_fix_hash, commit_link, writer, 1)
                 metric_calculation_and_writing(fixed_hash, last_hash, commit_link, writer, 0)
             except Exception as e:
-                print(e.__cause__)
+                sys.stderr.write(str(e))
                 continue
 
 
