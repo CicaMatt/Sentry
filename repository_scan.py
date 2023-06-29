@@ -59,6 +59,8 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
     removed_avg = lines_count.avg_removed()
 
     for file in filename:
+        if file is None:
+            continue
         writer.writerow([file, files_count.get(file), files_max.get(file), files_avg.get(file), numCommit.get(file),
                          count.get(file), minor.get(file), contrExp.get(file), numHunks.get(file),
                          added_count.get(file), added_max.get(file), added_avg.get(file), removed_count.get(file),
@@ -95,7 +97,7 @@ def main():
                 fixed_hash = cve.iloc[i]['fixed_hash']
                 vulnerable_hash = None
                 pre_fix_hash = None
-                last_hash = None
+                post_fix_hash = None
 
                 print("\n\nRepo link: ", commit_link)
 
@@ -139,21 +141,25 @@ def main():
                     pre_fix = array_commit[index_commit - 1]
                     pre_fix_hash = pre_fix.hash
 
-                    # ultimo commit
-                    last_commit = repository.git.get_head()
-                    last_hash = last_commit.hash
+                    # # ultimo commit
+                    # last_commit = repository.git.get_head()
+                    # last_hash = last_commit.hash
 
-                    if vulnerable_hash is None or last_hash is None or pre_fix_hash is None:
-                        print("\nErrore nella ricerca dei commit \n")
-                        continue
+                    #commit successivo al fixato
+                    post_fix = array_commit[index_commit + 1]
+                    post_fix_hash = post_fix.hash
+
+                if vulnerable_hash is None or post_fix_hash is None or pre_fix_hash is None:
+                    print("\nErrore nella ricerca dei commit \n")
+                    continue
 
                 print("Fixed hash: ", fixed_hash)
                 print("Pre fix hash: ", pre_fix_hash)
                 print("Vulnerable hash: ", vulnerable_hash)
-                print("Last hash: ", last_hash)
+                print("Post fix hash: ", post_fix_hash)
 
                 metric_calculation_and_writing(vulnerable_hash, pre_fix_hash, commit_link, writer, 1)
-                metric_calculation_and_writing(fixed_hash, last_hash, commit_link, writer, 0)
+                metric_calculation_and_writing(fixed_hash, post_fix_hash, commit_link, writer, 0)
             except Exception as e:
                 sys.stderr.write(str(e))
                 continue
