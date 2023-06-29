@@ -86,7 +86,7 @@ def main():
 
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['', 'filename', 'MaxNumCommittedFiles', 'AvgNumCommittedFiles', "#CodeChurnInFile",
+        writer.writerow(['filename', "#CodeChurnInFile",
                          "MaxSizeCodeChurn", "AvgSizeCodeChurn", "#Commits", "#Contributors",
                          "#MinorContributors", "#ContibutorExperience", "#Hunks", "#LinesAdded", "MaxLinesAdded",
                          "AvgLinesAdded", "#LinesRemoved", "MaxLinesRemoved", "AvgLinesRemoved", "vulnerable"])
@@ -112,7 +112,7 @@ def main():
                 #     print(commit.dmm_unit_interfacing)
 
                 num_commit = get_commit_count(commit_link)
-                if num_commit > 40000:
+                if num_commit > 10000:
                     print("\nSkippata repo con numero di commit: ", num_commit)
                     continue
 
@@ -122,15 +122,23 @@ def main():
                     print("Trovo il commit vulnerabile più obsoleto")
                     buggy_commits = repository.git.get_commits_last_modified_lines(commit)
 
+                    print(buggy_commits)
+
+                    older_vulnerable_commit = None
                     for key, value in buggy_commits.items():
-                        vulnerable_commit = repository.git.get_commit(value.pop())
-                        for i in range(len(value)):
-                            commit_new = repository.git.get_commit(value.pop())
-                            data_older = vulnerable_commit.committer_date
-                            data_new = commit_new.committer_date
+                        for index in range(len(value)):
+                            vulnerable_commit = repository.git.get_commit(value.pop())
+                            if older_vulnerable_commit is None:
+                                older_vulnerable_commit = vulnerable_commit
+                                continue
+                            print("Data commit: ", vulnerable_commit.committer_date, "Data older: ", older_vulnerable_commit.committer_date)
+                            data_older = older_vulnerable_commit.committer_date
+                            data_new = vulnerable_commit.committer_date
                             if data_new < data_older:
-                                vulnerable_commit = commit_new
-                        vulnerable_hash = vulnerable_commit.hash
+                                older_vulnerable_commit = vulnerable_commit
+
+                    vulnerable_hash = older_vulnerable_commit.hash
+                    print("Commit più obsoleto: ", older_vulnerable_commit.committer_date)
 
                     # commit precedente al commit fixato: converto il generator di tutti i commit in un oggetto list,
                     # poi prendo l'indice del commit fixato all'interno della lista in modo da ottenere il commit
