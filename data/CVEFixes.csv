@@ -1,3 +1,4 @@
+CVE-ID,fixed_hash,repository
 CVE-1999-0199,2864e767053317538feafa815046fff89e5a16be,https://github.com/bminor/glibc
 CVE-1999-0731,04906bd5de2f220bf100b605dad37b4a1d9a91a6,https://github.com/KDE/kde1-kdebase
 CVE-2002-2443,cf1a0c411b2668c57c41e9c4efd15ba17b6b322c,https://github.com/krb5/krb5
