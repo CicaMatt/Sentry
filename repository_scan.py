@@ -16,7 +16,7 @@ from github import Github
 
 
 def metric_calculation_and_writing(start, to, commit_link, writer, label):
-    print("Calcolo metriche...")
+    print("Metrics calculation...")
     code_churn = CodeChurn(path_to_repo=commit_link,
                            from_commit=start,
                            to_commit=to)
@@ -28,7 +28,7 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
     commits_count = CommitsCount(path_to_repo=commit_link,
                                  from_commit=start,
                                  to_commit=to)
-    numCommit = commits_count.count()
+    num_commit = commits_count.count()
 
     contributors_count = ContributorsCount(path_to_repo=commit_link,
                                            from_commit=start,
@@ -39,12 +39,12 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
     contributors_experience = ContributorsExperience(path_to_repo=commit_link,
                                                      from_commit=start,
                                                      to_commit=to)
-    contrExp = contributors_experience.count()
+    contr_exp = contributors_experience.count()
 
     hunks_count = HunksCount(path_to_repo=commit_link,
                              from_commit=start,
                              to_commit=to)
-    numHunks = hunks_count.count()
+    num_hunks = hunks_count.count()
 
     lines_count = LinesCount(path_to_repo=commit_link,
                              from_commit=start,
@@ -61,8 +61,8 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
     for file in filename:
         if file is None:
             continue
-        writer.writerow([file, files_count.get(file), files_max.get(file), files_avg.get(file), numCommit.get(file),
-                         count.get(file), minor.get(file), contrExp.get(file), numHunks.get(file),
+        writer.writerow([file, files_count.get(file), files_max.get(file), files_avg.get(file), num_commit.get(file),
+                         count.get(file), minor.get(file), contr_exp.get(file), num_hunks.get(file),
                          added_count.get(file), added_max.get(file), added_avg.get(file), removed_count.get(file),
                          removed_max.get(file), removed_avg.get(file), label])
 
@@ -83,6 +83,7 @@ def get_commit_count(repo_link):
 def main():
     cve = pd.read_csv("./data/CVEfixes.csv")
     filename = 'dataset.csv'
+    skipped_repos = 0
 
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file)
@@ -93,6 +94,7 @@ def main():
 
         for i in range(len(cve)):
             try:
+                # Retrieveing commit link and its fixed and vulnerable commits hash
                 commit_link = cve.iloc[i]['repository']
                 fixed_hash = cve.iloc[i]['fixed_hash']
                 vulnerable_hash = None
@@ -111,19 +113,22 @@ def main():
                 #     print(commit.dmm_unit_complexity)
                 #     print(commit.dmm_unit_interfacing)
 
+                # Excluding repos with too many commits
                 num_commit = get_commit_count(commit_link)
                 if num_commit > 10000:
-                    print("\nSkippata repo con numero di commit: ", num_commit)
+                    print("\nSkipped repo with", num_commit, "commits")
+                    skipped_repos = skipped_repos + 1
                     continue
+
 
                 repository = Repository(commit_link, single=fixed_hash)
                 for commit in repository.traverse_commits():
                     # commit vulnerabile
-                    print("Trovo il commit vulnerabile più obsoleto")
+                    print("Finding the most obsolete vulnerable commit")
                     buggy_commits = repository.git.get_commits_last_modified_lines(commit)
-
                     print(buggy_commits)
 
+                    # Scanning the obtained commits to find the most obsolete one
                     older_vulnerable_commit = None
                     for key, value in buggy_commits.items():
                         for index in range(len(value)):
@@ -138,36 +143,35 @@ def main():
                                 older_vulnerable_commit = vulnerable_commit
 
                     vulnerable_hash = older_vulnerable_commit.hash
-                    print("Commit più obsoleto: ", older_vulnerable_commit.committer_date)
+                    print("Most obsolete commit: ", older_vulnerable_commit.committer_date)
 
-                    # commit precedente al commit fixato: converto il generator di tutti i commit in un oggetto list,
-                    # poi prendo l'indice del commit fixato all'interno della lista in modo da ottenere il commit
-                    # precedente al fixato
+                    # Converting the generator of all commits in a list object, and then taking the index of the fixed
+                    # commit in the list to obtain the commit before the fixed one
                     commit_generator = repository.git.get_list_commits()
                     array_commit = list(commit_generator)
                     index_commit = array_commit.index(repository.git.get_commit(fixed_hash))
                     pre_fix = array_commit[index_commit - 1]
                     pre_fix_hash = pre_fix.hash
 
-                    # # ultimo commit
+                    # ultimo commit
                     # last_commit = repository.git.get_head()
                     # last_hash = last_commit.hash
 
-                    #commit successivo al fixato
+                    # Commit following the fixed one
                     post_fix = array_commit[index_commit + 1]
                     post_fix_hash = post_fix.hash
 
                 if vulnerable_hash is None or post_fix_hash is None or pre_fix_hash is None:
-                    print("\nErrore nella ricerca dei commit \n")
+                    print("\nError during commit search\n")
                     continue
+                else:
+                    print("Fixed hash: ", fixed_hash)
+                    print("Pre fix hash: ", pre_fix_hash)
+                    print("Vulnerable hash: ", vulnerable_hash)
+                    print("Post fix hash: ", post_fix_hash)
 
-                print("Fixed hash: ", fixed_hash)
-                print("Pre fix hash: ", pre_fix_hash)
-                print("Vulnerable hash: ", vulnerable_hash)
-                print("Post fix hash: ", post_fix_hash)
-
-                metric_calculation_and_writing(vulnerable_hash, pre_fix_hash, commit_link, writer, 1)
-                metric_calculation_and_writing(fixed_hash, post_fix_hash, commit_link, writer, 0)
+                    metric_calculation_and_writing(vulnerable_hash, pre_fix_hash, commit_link, writer, 1)
+                    metric_calculation_and_writing(fixed_hash, post_fix_hash, commit_link, writer, 0)
             except Exception as e:
                 sys.stderr.write(str(e))
                 continue
