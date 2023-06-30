@@ -1,14 +1,13 @@
-import numpy as np
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 
 class Scaling:
-    def scaling(data, labels_full, method):
-        # Feature Scaling - Z-Score Normalization
+    def scaling(self, data, method):
         print("Scaling training set features")
-        data = StandardScaler().fit_transform(data)
-        # data = MinMaxScaler().fit_transform(data)
-        data = pd.DataFrame(data)
+        if method == "zscore" or method == "default":
+            # Feature Scaling - Z-Score Normalization
+            data = StandardScaler().fit_transform(data)
+        else:
+            data = MinMaxScaler().fit_transform(data)
 
         return data

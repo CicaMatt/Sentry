@@ -1,11 +1,24 @@
 import os
 import sys
 
+import requests
 import yaml
-
-from DatasetNotFoundException import DatasetNotFoundException
+from github import Github
 from dispatcher import Dispatcher
 from YAMLFileFormatException import YAMLFileFormatException
+
+def verifica_link_github(link):
+    try:
+        response = requests.get(link)
+        if response.status_code == 200:
+            print("Il link esiste.")
+            return 1
+        else:
+            print("Il link non esiste.")
+            return 0
+    except requests.exceptions.RequestException as e:
+        print("Errore durante la richiesta:", e)
+        return 0
 
 
 def main():
@@ -19,10 +32,10 @@ def main():
     #così si accede ai singoli elementi della configurazione
     #print(data['configurations'][0][0]['Classifier'])
     try:
-        if data["dataset"].lower() == "default":
-            data["dataset"] = "path/to/dataset.csv"
-        elif not os.path.exists(data["dataset"]):
-            raise DatasetNotFoundException("Path to the dataset was not found")
+        if not verifica_link_github(data["repo"]):
+            raise YAMLFileFormatException("Wrong Repository path")
+
+        repo_link = data["repo"]
 
         #controlli relativi al yaml file per ogni parametro letto per vedere se ci sono input errati quindi dare
         # un messaggio d'errore. Se il parametro non viene inserito dall'utente viene aggiunto con valore default
@@ -98,8 +111,8 @@ def main():
 
     for pipeline in data['configurations']:
         for i in pipeline:
-            print(pipeline[i])
-            #Dispatcher(data['configurations'][i][i], data['dataset'])
+            print(data['configurations'][i][i])
+            Dispatcher(data['configurations'][i][i], repo_link)
 
     #quando finiscono tutte le chiamate facciamo test statistici e statistica descrittiva
 

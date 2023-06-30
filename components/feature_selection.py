@@ -4,23 +4,28 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
 
 class Selection:
 
-    def selection(data, method):
+    def selection(self, data, method):
+        labels_full = data["vulnerable"]
         # Variance Threshold
-        if method == "Variance Threshold":
+        if method == "variancethreshold":
             data = VarianceThreshold().fit_transform(data)
             return data
 
         # KBest
-        elif method == "KBest":
-            data = SelectKBest(chi2, k=80).fit_transform(data, labels_full)
+        elif method == "kbest":
+            features = data.iloc[:, :-1]
+            labels = data.iloc[:, -1]
+            data = SelectKBest(chi2, k=6).fit_transform(features, labels)
             return data
 
         # Pearson's Correlation
         else:
-            cor_support, cor_feature = Selection.cor_selector(X, labels_full, num_feats)
+            features = data.iloc[:, :-1]
+            labels = data.iloc[:, -1]
+            cor_support, cor_feature = Selection.cor_selector(features, labels_full, num_feats)
             return cor_feature
 
-    def cor_selector(X, y, num_feats):
+    def cor_selector(self, X, y, num_feats):
         cor_list = []
         feature_name = X.columns.tolist()
         # calculate the correlation with y for each feature

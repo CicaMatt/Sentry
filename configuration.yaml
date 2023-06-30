@@ -1,6 +1,6 @@
 ---
 
-dataset: default
+repo: https://github.com/klauspost/compress
 
 configurations:
   - 0:

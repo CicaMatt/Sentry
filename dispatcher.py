@@ -1,6 +1,6 @@
 from components.data_balancing import Balancing
 from components.data_cleaning import Cleaning
-from components.explainability import Explainability
+# from components.explainability import Explainability
 from components.hp_optimization import HP_Optimization
 from components.feature_scaling import Scaling
 from components.feature_selection import Selection
@@ -12,19 +12,21 @@ from components.validation import Validation
 
 class Dispatcher:
 
-    def __init__(self, data, dataset):
+    def __init__(self, data, repo_link):
         self.data = data
-        self.datasetPath = dataset
+        self.repo_link = repo_link
 
     def start(self):
         # Data setup
-        data = Setup.data_setup(self.datasetPath)
+        data = Setup.data_setup()
 
         # Data Cleaning
-        data, labels_full = Cleaning.cleaning(data, self.data['Data Cleaning'])
+        data = Cleaning.cleaning(data, self.data['Data Cleaning'])
+
+
 
         # Feature Scaling
-        data = Scaling.scaling(data, labels_full, self.data['Feature Scaling'])
+        data = Scaling.scaling(data, self.data['Feature Scaling'])
 
         # Feature Selection
         data = Selection.selection(data, self.data['Feature Selection'])
@@ -37,8 +39,7 @@ class Dispatcher:
 
         # Validation setup
         if (self.data['Validation'] == "ttsplit"):
-            x_training, x_testing, y_training, y_testing = Validation.data_validation(data, labels_full,
-                                                                                      self.data['Validation'])
+            x_training, x_testing, y_training, y_testing = Validation.data_validation(data, self.data['Validation'])
 
             # Model classification
             prediction, classifier = Classification.data_classification(x_training, x_testing, y_training, y_testing,
