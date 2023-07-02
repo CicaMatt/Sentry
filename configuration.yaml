@@ -7,18 +7,14 @@ configurations:
       Feature Scaling: zScore
       Feature Selection: kbest
       Data Balancing: smote
-      Hyper-parameters Optimization: RandomSearch
       Classifier: svm
       Validation: ttsplit
-      Metric: accuracy
       Explaination Method: confusionmatrix
   - 1:
-      Data Cleaning: dataimputation
+      Data Cleaning: dataimputation, shuffling
       Feature Scaling: zScore
       Feature Selection: kbest
       Data Balancing: smote
-      Hyper-parameters Optimization: RandomSearch
       Classifier: svm
       Validation: ttsplit
-      Metric: precision
       Explaination Method: confusionmatrix

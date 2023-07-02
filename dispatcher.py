@@ -1,6 +1,6 @@
 from components.data_balancing import Balancing
 from components.data_cleaning import Cleaning
-# from components.explainability import Explainability
+from components.explainability import Explainability
 from components.hp_optimization import HP_Optimization
 from components.feature_scaling import Scaling
 from components.feature_selection import Selection
@@ -45,9 +45,9 @@ class Dispatcher:
             self.classifier = classifier
 
             # Metrics calculation
-            Metrics.metrics(y_testing, prediction, self.data['Metric'], 0)
+            Metrics.metrics(y_testing, prediction, classifier)
 
-        # Validation - K Fold Validation
+        # Validation - Stratified or Standard K Fold Validation
         else:
             labels_full = data["vulnerable"]
             indexes, training_data, labels = Validation.data_validation(data, labels_full, self.data['Validation'])
@@ -72,7 +72,7 @@ class Dispatcher:
                                                                             y_testing, self.data['Classifier'])
 
                 # Metrics calculation
-                accuracy = Metrics.metrics(y_testing, prediction, self.data['Metric'], 0)
+                accuracy = Metrics.metrics(y_testing, prediction, classifier)
                 if accuracy > best_accuracy:
                     best_accuracy = accuracy
                     self.classifier = classifier
@@ -81,5 +81,5 @@ class Dispatcher:
         model = HP_Optimization.hp_optimization(self.data['Hyper-parameters Optimization'])
 
         # Model explanation
-        # Explainability.explainability(model, x_training, y_training, x_testing, y_testing,
-        #                               self.data['Explaination Method'])
+        Explainability.explainability(model, x_training, y_training, x_testing, y_testing, prediction, classifier,
+                                      self.data['Explaination Method'])

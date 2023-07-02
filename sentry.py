@@ -92,16 +92,9 @@ def main():
                     validation = pipeline[i]["Validation"].lower()
                     if not (validation == "ttsplit" or validation == "kfold" or validation == "nestedfold"):
                         raise YAMLFileFormatException("Wrong Validation input inserted")
-                # Metrics
-                if not "Metric" in pipeline[i]:
-                    data['configurations'][i][i]["Metric"] = "default"
-                else:
-                    metric = pipeline[i]["Metric"].lower()
-                    if not (metric == "accuracy" or metric == "precision" or metric == "recall"):
-                        raise YAMLFileFormatException("Wrong Metric input inserted")
                 # Explainability
                 if not "Explaination Method" in pipeline[i]:
-                    data['configurations'][i][i]["Data Cleaning"] = "default"
+                    data['configurations'][i][i]["Explaination Method"] = "default"
                 else:
                     explain = pipeline[i]["Explaination Method"].lower()
                     if not (explain == "confusionmatrix" or explain == "permutation" or explain == "partialdependence"):
