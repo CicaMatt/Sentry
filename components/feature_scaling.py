@@ -2,12 +2,16 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 
 class Scaling:
-    def scaling(self, data, method):
-        print("Scaling training set features")
+    def scaling(self, x_training, x_testing, method):
+        print("Scaling training and test set features")
+
         if method == "zscore" or method == "default":
             # Feature Scaling - Z-Score Normalization
-            data = StandardScaler().fit_transform(data)
-        else:
-            data = MinMaxScaler().fit_transform(data)
+            x_training = StandardScaler().fit_transform(x_training)
+            x_testing = StandardScaler().transform(x_testing)
 
-        return data
+        else:
+            x_training = MinMaxScaler().fit_transform(x_training)
+            x_testing = MinMaxScaler().transform(x_testing)
+
+        return x_training, x_testing

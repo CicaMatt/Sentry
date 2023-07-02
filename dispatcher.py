@@ -23,23 +23,19 @@ class Dispatcher:
         # Data Cleaning
         data = Cleaning.cleaning(data, self.data['Data Cleaning'])
 
-
-
-        # Feature Scaling
-        data = Scaling.scaling(data, self.data['Feature Scaling'])
-
-        # Feature Selection
-        data = Selection.selection(data, self.data['Feature Selection'])
-
-        # Data Balancing
-        data = Balancing.dataBalancing(data, self.data['Data Balancing'])
-
-        # Hyperparameters optimization
-        model = HP_Optimization.hp_optimization(self.data['Hyper-parameters Optimization'])
-
-        # Validation setup
+        # Validation - Train/Test Split
         if (self.data['Validation'] == "ttsplit"):
             x_training, x_testing, y_training, y_testing = Validation.data_validation(data, self.data['Validation'])
+
+            # Feature Scaling
+            x_training, x_testing = Scaling.scaling(x_training, x_testing, self.data['Feature Scaling'])
+
+            # Feature Selection
+            x_training, x_testing = Selection.selection(x_training, x_testing, y_training, y_testing,
+                                                        self.data['Feature Selection'])
+
+            # Data Balancing
+            x_training = Balancing.dataBalancing(x_training, self.data['Data Balancing'])
 
             # Model classification
             prediction, classifier = Classification.data_classification(x_training, x_testing, y_training, y_testing,
@@ -51,7 +47,9 @@ class Dispatcher:
             # Metrics calculation
             Metrics.metrics(y_testing, prediction, self.data['Metric'], 0)
 
+        # Validation - K Fold Validation
         else:
+            labels_full = data["vulnerable"]
             indexes, training_data, labels = Validation.data_validation(data, labels_full, self.data['Validation'])
             best_accuracy = 0
 
@@ -59,6 +57,17 @@ class Dispatcher:
                 x_training, x_testing = training_data[training_index], training_data[testing_index]
                 y_training, y_testing = labels[training_index], labels[testing_index]
 
+                # Feature Scaling
+                x_training, x_testing = Scaling.scaling(x_training, x_testing, self.data['Feature Scaling'])
+
+                # Feature Selection
+                x_training, x_testing = Selection.selection(x_training, x_testing, y_training, y_testing,
+                                                            self.data['Feature Selection'])
+
+                # Data Balancing
+                x_training = Balancing.dataBalancing(x_training, self.data['Data Balancing'])
+
+                # Model classification
                 prediction, classifier = Classification.data_classification(x_training, x_testing, y_training,
                                                                             y_testing, self.data['Classifier'])
 
@@ -68,6 +77,9 @@ class Dispatcher:
                     best_accuracy = accuracy
                     self.classifier = classifier
 
+        # Hyperparameters optimization
+        model = HP_Optimization.hp_optimization(self.data['Hyper-parameters Optimization'])
+
         # Model explanation
-        Explainability.explainability(model, x_training, y_training, x_testing, y_testing,
-                                      self.data['Explaination Method'])
+        # Explainability.explainability(model, x_training, y_training, x_testing, y_testing,
+        #                               self.data['Explaination Method'])

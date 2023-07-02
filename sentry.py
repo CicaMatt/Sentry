@@ -83,7 +83,7 @@ def main():
                     data['configurations'][i][i]["Classifier"] = "default"
                 else:
                     classifier = pipeline[i]["Classifier"].lower()
-                    if not (classifier == "svm" or classifier == "RandomForest" or classifier == "kneighbors"):
+                    if not (classifier == "svm" or classifier == "randomforest" or classifier == "kneighbors"):
                         raise YAMLFileFormatException("Wrong Classifier input inserted")
                 # Validation
                 if not "Validation" in pipeline[i]:
