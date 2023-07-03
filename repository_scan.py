@@ -99,7 +99,6 @@ def main():
                 fixed_hash = cve.iloc[i]['fixed_hash']
                 vulnerable_hash = None
                 pre_fix_hash = None
-                post_fix_hash = None
 
                 print("\n\nRepo link: ", commit_link)
 
@@ -114,12 +113,11 @@ def main():
                 #     print(commit.dmm_unit_interfacing)
 
                 # Excluding repos with too many commits
-                num_commit = get_commit_count(commit_link)
-                if num_commit > 10000:
-                    print("\nSkipped repo with", num_commit, "commits")
-                    skipped_repos = skipped_repos + 1
-                    continue
-
+                # num_commit = get_commit_count(commit_link)
+                # if num_commit > 10000:
+                #     print("\nSkipped repo with", num_commit, "commits")
+                #     skipped_repos = skipped_repos + 1
+                #     continue
 
                 repository = Repository(commit_link, single=fixed_hash)
                 for commit in repository.traverse_commits():
@@ -143,35 +141,43 @@ def main():
                                 older_vulnerable_commit = vulnerable_commit
 
                     vulnerable_hash = older_vulnerable_commit.hash
-                    print("Most obsolete commit: ", older_vulnerable_commit.committer_date)
+                    print("Most obsolete vulnerable commit: ", older_vulnerable_commit.committer_date)
 
                     # Converting the generator of all commits in a list object, and then taking the index of the fixed
                     # commit in the list to obtain the commit before the fixed one
+                    fixed_commit = repository.git.get_commit(fixed_hash)
                     commit_generator = repository.git.get_list_commits()
                     array_commit = list(commit_generator)
-                    index_commit = array_commit.index(repository.git.get_commit(fixed_hash))
+                    index_commit = array_commit.index(fixed_commit)
                     pre_fix = array_commit[index_commit - 1]
                     pre_fix_hash = pre_fix.hash
 
-                    # ultimo commit
-                    # last_commit = repository.git.get_head()
-                    # last_hash = last_commit.hash
+                    last_commit = repository.git.get_head()
+                    index_last = array_commit.index(last_commit)
+                    similar_commits = list()
+                    print("Fixed commit files: ", fixed_commit.files)
+                    for c in range(index_commit+1, index_last):
+                        if fixed_commit.files-3 <= array_commit[c].files <= fixed_commit.files+3:
+                            similar_commits.append(array_commit[c])
 
-                    # Commit following the fixed one
-                    post_fix = array_commit[index_commit + 1]
-                    post_fix_hash = post_fix.hash
+                    last_similar_commit = None
+                    for c in similar_commits:
+                        if last_similar_commit is None:
+                            last_similar_commit = c
+                        elif last_similar_commit.committer_date < c.committer_date:
+                            last_similar_commit = c
 
-                if vulnerable_hash is None or post_fix_hash is None or pre_fix_hash is None:
+                if vulnerable_hash is None or last_similar_commit is None or pre_fix_hash is None:
                     print("\nError during commit search\n")
                     continue
                 else:
                     print("Fixed hash: ", fixed_hash)
                     print("Pre fix hash: ", pre_fix_hash)
                     print("Vulnerable hash: ", vulnerable_hash)
-                    print("Post fix hash: ", post_fix_hash)
+                    print("Last similar fixed commit hash: ", last_similar_commit)
 
                     metric_calculation_and_writing(vulnerable_hash, pre_fix_hash, commit_link, writer, 1)
-                    metric_calculation_and_writing(fixed_hash, post_fix_hash, commit_link, writer, 0)
+                    metric_calculation_and_writing(fixed_hash, last_similar_commit, commit_link, writer, 0)
             except Exception as e:
                 sys.stderr.write(str(e))
                 continue
