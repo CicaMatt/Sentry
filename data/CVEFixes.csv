@@ -1,6 +1,2 @@
 CVE-ID,fixed_hash,repository
-CVE-2015-0228,78eb3b9235515652ed141353d98c239237030410,https://github.com/apache/httpd
-CVE-2017-9798,4cc27823899e070268b906ca677ee838d07cf67a,https://github.com/apache/httpd
-CVE-2015-0253,be0f5335e3e73eb63253b050fdc23f252f5c8ae3,https://github.com/apache/httpd
-CVE-2015-3183,a6027e56924bb6227c1fdbf6f91e7e2438338be6,https://github.com/apache/httpd
 CVE-2015-3185,db81019ab88734ed35fa70294a0cfa7a19743f73,https://github.com/apache/httpd

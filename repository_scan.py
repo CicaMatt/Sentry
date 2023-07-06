@@ -83,7 +83,7 @@ def get_commit_count(repo_link):
 def main():
     cve = pd.read_csv("./data/CVEfixes.csv")
     filename = 'dataset.csv'
-    skipped_repos = 0
+    # skipped_repos = 0
 
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file)
@@ -94,7 +94,7 @@ def main():
 
         for i in range(len(cve)):
             try:
-                # Retrieveing commit link and its fixed and vulnerable commits hash
+                # Retrieving commit link and its fixed and vulnerable commits hash
                 commit_link = cve.iloc[i]['repository']
                 fixed_hash = cve.iloc[i]['fixed_hash']
                 vulnerable_hash = None
@@ -124,7 +124,10 @@ def main():
                     # commit vulnerabile
                     print("Finding the most obsolete vulnerable commit")
                     buggy_commits = repository.git.get_commits_last_modified_lines(commit)
-                    print(buggy_commits)
+                    if len(buggy_commits) > 0:
+                        print(buggy_commits)
+                    else:
+                        print("Unable to find most obsolete vulnerable commit")
 
                     # Scanning the obtained commits to find the most obsolete one
                     older_vulnerable_commit = None
@@ -134,7 +137,8 @@ def main():
                             if older_vulnerable_commit is None:
                                 older_vulnerable_commit = vulnerable_commit
                                 continue
-                            print("Data commit: ", vulnerable_commit.committer_date, "Data older: ", older_vulnerable_commit.committer_date)
+                            print("Data commit: ", vulnerable_commit.committer_date,
+                                  "Data older: ", older_vulnerable_commit.committer_date)
                             data_older = older_vulnerable_commit.committer_date
                             data_new = vulnerable_commit.committer_date
                             if data_new < data_older:
@@ -174,10 +178,10 @@ def main():
                     print("Fixed hash: ", fixed_hash)
                     print("Pre fix hash: ", pre_fix_hash)
                     print("Vulnerable hash: ", vulnerable_hash)
-                    print("Last similar fixed commit hash: ", last_similar_commit)
+                    print("Last similar fixed commit hash: ", last_similar_commit.hash)
 
                     metric_calculation_and_writing(vulnerable_hash, pre_fix_hash, commit_link, writer, 1)
-                    metric_calculation_and_writing(fixed_hash, last_similar_commit, commit_link, writer, 0)
+                    metric_calculation_and_writing(fixed_hash, last_similar_commit.hash, commit_link, writer, 0)
             except Exception as e:
                 sys.stderr.write(str(e))
                 continue

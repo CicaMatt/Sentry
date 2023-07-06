@@ -3,7 +3,7 @@ from sklearn import neighbors, svm, ensemble
 
 
 class Classification:
-    def data_classification(x_training, x_testing, y_training, y_testing, classifier):
+    def data_classification(self, x_training, x_testing, y_training, y_testing, classifier):
 
         if classifier == "kneighbors":
             # Training phase
@@ -24,6 +24,8 @@ class Classification:
             model = svm.SVC(kernel='linear')
 
             start = time.time()
+            print(x_training)
+            print(y_training)
             model.fit(x_training, y_training)
             print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
 

@@ -11,13 +11,13 @@ def verifica_link_github(link):
     try:
         response = requests.get(link)
         if response.status_code == 200:
-            print("Il link esiste.")
+            print("Link is working")
             return 1
         else:
-            print("Il link non esiste.")
+            print("Link does not exists")
             return 0
     except requests.exceptions.RequestException as e:
-        print("Errore durante la richiesta:", e)
+        print("Error during request: ", e)
         return 0
 
 
@@ -105,7 +105,8 @@ def main():
     for pipeline in data['configurations']:
         for i in pipeline:
             print(data['configurations'][i][i])
-            Dispatcher(data['configurations'][i][i], repo_link)
+            dispatcher = Dispatcher(data['configurations'][i][i], repo_link)
+            dispatcher.start()
 
     #quando finiscono tutte le chiamate facciamo test statistici e statistica descrittiva
 

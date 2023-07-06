@@ -7,11 +7,16 @@ class Scaling:
 
         if method == "zscore" or method == "default":
             # Feature Scaling - Z-Score Normalization
-            x_training = StandardScaler().fit_transform(x_training)
-            x_testing = StandardScaler().transform(x_testing)
+            scaler = StandardScaler()
+
+            x_training = scaler.fit_transform(x_training)
+            x_testing = scaler.transform(x_testing)
 
         else:
-            x_training = MinMaxScaler().fit_transform(x_training)
-            x_testing = MinMaxScaler().transform(x_testing)
+            # Feature Scaling - Min-Max Scaling
+            scaler = MinMaxScaler()
+
+            x_training = scaler.fit_transform(x_training)
+            x_testing = scaler.transform(x_testing)
 
         return x_training, x_testing

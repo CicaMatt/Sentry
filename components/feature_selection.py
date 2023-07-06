@@ -1,11 +1,11 @@
 import numpy as np
+import pandas as pd
 from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
 
 
 class Selection:
 
     def selection(self, x_training, x_testing, method):
-        labels_full = x_training["vulnerable"]
         # Variance Threshold
         if method == "variancethreshold":
             x_training = VarianceThreshold().fit_transform(x_training)
@@ -13,10 +13,13 @@ class Selection:
 
         # KBest
         elif method == "kbest":
-            features = x_training.iloc[:, :-1]
-            labels = x_training.iloc[:, -1]
-            x_training = SelectKBest(chi2, k=6).fit_transform(features, labels)
-            x_testing = SelectKBest(chi2, k=6).transform(features, labels)
+            k_best = SelectKBest(chi2, k=6)
+
+            features = np.delete(x_training, 14, 1)
+            labels = x_training[:, 14]
+
+            x_training = k_best.fit_transform(features, labels)
+            x_testing = k_best.transform(features)
 
         # Pearson's Correlation
         else:
@@ -27,6 +30,6 @@ class Selection:
 
             x_testing = x_testing.loc[:, relevant_features]
 
-        return x_training, x_testing
+        return x_training, x_testing, labels
 
 
