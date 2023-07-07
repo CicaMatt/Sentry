@@ -34,7 +34,7 @@ class Dispatcher:
             x_training, x_testing, labels = Selection().selection(x_training, x_testing, self.data['Feature Selection'])
 
             # Data Balancing
-            x_training = Balancing().dataBalancing(x_training, labels, self.data['Data Balancing'])
+            x_training, y_training = Balancing().dataBalancing(x_training, labels, self.data['Data Balancing'])
 
             # Model classification
             prediction, classifier = Classification().data_classification(x_training, x_testing, y_training, y_testing,

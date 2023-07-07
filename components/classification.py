@@ -24,13 +24,15 @@ class Classification:
             model = svm.SVC(kernel='linear')
 
             start = time.time()
-            print(x_training)
-            print(y_training)
+
             model.fit(x_training, y_training)
             print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
 
             # Prediction phase
             print("Prediction...")
+            # print(x_training.shape)
+            # print(x_testing.shape)
+
             prediction = model.predict(x_testing)
             print("Total time: " + str(time.time() - start)[0:7] + "s\n")
 

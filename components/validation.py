@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 
@@ -16,6 +17,8 @@ class Validation:
             print("Validation - Train/Test Split - 80/20")
             x_training, x_testing, y_training, y_testing = train_test_split(training_data, labels, test_size=0.20,
                                                                             random_state=42)
+            y_training = np.argmax(y_training, axis=1)
+
             return x_training, x_testing, y_training, y_testing
 
         # K-Fold Validation - 10 Fold

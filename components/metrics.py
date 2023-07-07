@@ -8,8 +8,12 @@ class Metrics:
     def metrics(self, y_testing, prediction, classifier):
         # argmax restituisce gli indici dei valori massimi lungo un asse
         # la flag serve perchè la prediction di alcuni classificatori viene restituita in modo diverso
-        if classifier == "svm":
-            prediction = np.argmax(prediction, axis=1)
+
+        # print(classifier.__class__.__name__)
+
+        # vedere bene se ci vuole questo pezzo
+        # if classifier.__class__.__name__ != "SVC":
+        #     prediction = np.argmax(prediction, axis=1)
         truth = np.argmax(y_testing, axis=1)
 
         accuracy_score = metrics.accuracy_score(truth, prediction)

@@ -7,7 +7,7 @@ configurations:
       Feature Scaling: zScore
       Feature Selection: kbest
       Data Balancing: smote
-      Classifier: svm
+      Classifier: randomforest
       Validation: ttsplit
       Explaination Method: confusionmatrix
   - 1:

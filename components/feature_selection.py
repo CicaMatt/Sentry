@@ -15,11 +15,12 @@ class Selection:
         elif method == "kbest":
             k_best = SelectKBest(chi2, k=6)
 
-            features = np.delete(x_training, 14, 1)
+            features_x_training = np.delete(x_training, 14, 1)
+            features_x_testing = np.delete(x_testing, 14, 1)
             labels = x_training[:, 14]
 
-            x_training = k_best.fit_transform(features, labels)
-            x_testing = k_best.transform(features)
+            x_training = k_best.fit_transform(features_x_training, labels)
+            x_testing = k_best.transform(features_x_testing)
 
         # Pearson's Correlation
         else:
