@@ -1,13 +1,10 @@
 import os
-import pickle
 import shutil
 import sys
 
 import requests
 import yaml
-from github import Github
 
-from components import Dataset_generation
 from components.data_cleaning import Cleaning
 from components.setup import Setup
 from dispatcher import Dispatcher
@@ -108,8 +105,10 @@ def main():
     except Exception as e:
         sys.exit(e.args[0])
 
-    Dataset_generation.start(repo_link=repo_link)
-    to_predict = Setup().data_setup("generated_dataset.csv")
+    # Generating dataset from repository link
+    # Dataset_generation.start(repo_link=repo_link)
+    to_predict = Setup().data_setup("dataset_pango.csv")
+
     # Data Cleaning
     to_predict = Cleaning().cleaning(to_predict, "dataimputation")
 
@@ -122,7 +121,7 @@ def main():
             path = root + './configuration'
             path += str(i)
             os.mkdir(path)
-            print(data['configurations'][i][i])
+            # print(data['configurations'][i][i])
             dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict)
             dispatcher.start()
 

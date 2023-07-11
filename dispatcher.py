@@ -1,5 +1,9 @@
 import pickle
 
+import numpy as np
+from numpy import savetxt
+from sklearn.preprocessing import MinMaxScaler
+
 from components.data_balancing import Balancing
 from components.data_cleaning import Cleaning
 from components.feature_scaling import Scaling
@@ -83,13 +87,16 @@ class Dispatcher:
         pickle.dump(balancer, open(self.dir_path + "/balancer.sav", 'wb'))
         pickle.dump(classifier, open(self.dir_path + "/classifier.sav", 'wb'))
 
-        scaler.transform(self.dataset_to_predict)
-        selector.transform(self.dataset_to_predict)
-        balancer.transform(self.dataset_to_predict)
+
+        # Prediction on another test set
+        print("\n\nPrediction on second test set")
+        self.dataset_to_predict = scaler.fit_transform(self.dataset_to_predict)
+        self.dataset_to_predict = selector.transform(self.dataset_to_predict)
+
         predictions = classifier.predict(self.dataset_to_predict)
         complete_dataset = self.dataset_to_predict
-        complete_dataset["vulnerable"] = predictions
-        complete_dataset.to_csv(self.dir_path + "/generated_dataset.csv")
+        np.insert(complete_dataset, 6, predictions, axis=1)
+        savetxt('generated_dataset.csv', complete_dataset, delimiter=',')
 
         # # Hyperparameters optimization
         # model = HP_Optimization().hp_optimization(self.data['Hyper-parameters Optimization'])
