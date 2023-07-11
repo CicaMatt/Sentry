@@ -19,4 +19,4 @@ class Scaling:
             x_training = scaler.fit_transform(x_training)
             x_testing = scaler.transform(x_testing)
 
-        return x_training, x_testing
+        return scaler, x_training, x_testing

@@ -1,9 +1,15 @@
 import os
+import pickle
+import shutil
 import sys
 
 import requests
 import yaml
 from github import Github
+
+from components import Dataset_generation
+from components.data_cleaning import Cleaning
+from components.setup import Setup
 from dispatcher import Dispatcher
 from YAMLFileFormatException import YAMLFileFormatException
 
@@ -102,11 +108,24 @@ def main():
     except Exception as e:
         sys.exit(e.args[0])
 
+    Dataset_generation.start(repo_link=repo_link)
+    to_predict = Setup().data_setup("generated_dataset.csv")
+    # Data Cleaning
+    to_predict = Cleaning().cleaning(to_predict, "dataimputation")
+
+    root = repo_link.rsplit('/', 1)[-1]
+    if os.path.exists(root):
+        shutil.rmtree(root)
+    os.mkdir(root)
     for pipeline in data['configurations']:
         for i in pipeline:
+            path = root + './configuration'
+            path += str(i)
+            os.mkdir(path)
             print(data['configurations'][i][i])
-            dispatcher = Dispatcher(data['configurations'][i][i], repo_link)
+            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict)
             dispatcher.start()
+
 
     #quando finiscono tutte le chiamate facciamo test statistici e statistica descrittiva
 

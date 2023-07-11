@@ -61,10 +61,17 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
     for file in filename:
         if file is None:
             continue
-        writer.writerow([file, files_count.get(file), files_max.get(file), files_avg.get(file), num_commit.get(file),
-                         count.get(file), minor.get(file), contr_exp.get(file), num_hunks.get(file),
-                         added_count.get(file), added_max.get(file), added_avg.get(file), removed_count.get(file),
-                         removed_max.get(file), removed_avg.get(file), label])
+        if label == -1:
+            writer.writerow([file, files_count.get(file), files_max.get(file), files_avg.get(file), num_commit.get(file),
+                             count.get(file), minor.get(file), contr_exp.get(file), num_hunks.get(file),
+                             added_count.get(file), added_max.get(file), added_avg.get(file), removed_count.get(file),
+                             removed_max.get(file), removed_avg.get(file)])
+        else:
+            writer.writerow(
+                [file, files_count.get(file), files_max.get(file), files_avg.get(file), num_commit.get(file),
+                 count.get(file), minor.get(file), contr_exp.get(file), num_hunks.get(file),
+                 added_count.get(file), added_max.get(file), added_avg.get(file), removed_count.get(file),
+                 removed_max.get(file), removed_avg.get(file), label])
 
 
 def get_commit_count(repo_link):
