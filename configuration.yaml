@@ -5,7 +5,6 @@ repo: https://github.com/bratsche/pango
 configurations:
   - 0:
       Feature Scaling: zScore
-      Feature Selection: kbest
       Data Balancing: smote
       Classifier: randomforest
       Validation: ttsplit

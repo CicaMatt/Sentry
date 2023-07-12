@@ -13,7 +13,7 @@ from sklearn.inspection import PartialDependenceDisplay
 # ULTIMI DUE METODI DA TESTARE
 
 class Explainability:
-    def explainability(self, X_test, y_test, prediction, classifier, method):
+    def explainability(self, X_test, truth, prediction, classifier, method):
         X_test = pd.DataFrame(X_test)
         features = list(X_test.columns.values)
 
@@ -21,7 +21,7 @@ class Explainability:
         if method == "confusionmatrix":
             if classifier == "svm":
                 prediction = np.argmax(prediction, axis=1)
-            truth = np.argmax(y_test, axis=1)
+
             confusion_matrix = metrics.confusion_matrix(truth, prediction)
 
             print("\nConfusion Matrix generated")
@@ -40,7 +40,7 @@ class Explainability:
 
         # Permutation feature importance
         elif method == "permutation":
-            r = permutation_importance(classifier, X_test, y_test,
+            r = permutation_importance(classifier, X_test, truth,
                                        n_repeats=30,
                                        random_state=0)
             for i in r.importances_mean.argsort()[::-1]:
@@ -51,6 +51,7 @@ class Explainability:
 
 
         # Partial Dependence Plots
+        #da correggere
         else:
             X, y = make_hastie_10_2(random_state=0)
             clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0).fit(X, y)

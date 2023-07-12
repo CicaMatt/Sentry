@@ -18,6 +18,7 @@ class Validation:
             x_training, x_testing, y_training, y_testing = train_test_split(training_data, labels, test_size=0.20,
                                                                             random_state=42)
             y_training = np.argmax(y_training, axis=1)
+            y_testing = np.argmax(y_testing, axis=1)
 
             return x_training, x_testing, y_training, y_testing
 

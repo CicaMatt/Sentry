@@ -4,9 +4,12 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
 
 
 class Selection:
-    def selection(self, x_training, x_testing, method):
-        labels = x_training[:, 14]
+    def selection(self, x_training, x_testing, method, columns, labels):
         selector = None
+        selected_features = None
+
+        if method == "default":
+            return selector, x_training, x_testing, selected_features
         # Variance Threshold
         if method == "variancethreshold":
             selector = VarianceThreshold()
@@ -25,15 +28,21 @@ class Selection:
 
         # Pearson's Correlation
         else:
+            x_testing = pd.DataFrame(x_testing, columns=columns)
+            x_training = pd.DataFrame(x_training, columns=columns)
 
-            corr = x_training.corr()["vulnerable"].sort_values(ascending=False)[1:]
-            abs_corr = abs(corr)
-            relevant_features = abs_corr[abs_corr > 0.4]
-            print("STEFANO", relevant_features)
-            x_training = x_training.loc[:, relevant_features]
+            # Calcola la matrice di correlazione di Pearson
+            corr_matrix = np.corrcoef(x_training, rowvar=False)
+            # Trova l'indice della colonna target
+            target_index = x_training.columns.get_loc("vulnerable")
+            # Seleziona le colonne con una correlazione superiore alla soglia specificata
+            selected_features = []
+            for i, corr_value in enumerate(corr_matrix[target_index]):
+                if i != target_index and abs(corr_value) > 0.2:
+                    selected_features.append(x_training.columns[i])
+            x_training = x_training.loc[:, selected_features]
+            x_testing = x_testing.loc[:, selected_features]
 
-            x_testing = x_testing.loc[:, relevant_features]
-
-        return selector, x_training, x_testing, labels
+        return selector, x_training, x_testing, selected_features
 
 

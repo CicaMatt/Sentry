@@ -30,27 +30,30 @@ class Dispatcher:
 
         # Data Cleaning
         data = Cleaning().cleaning(data, self.data['Data Cleaning'])
-
+        columns = data.columns
         # Validation - Train/Test Split
         if (self.data['Validation'] == "ttsplit"):
             x_training, x_testing, y_training, y_testing = Validation().data_validation(data, self.data['Validation'])
+            x_training = x_training[:, :-1]
+            x_testing = x_testing[:, :-1]
 
             # Feature Scaling
             self.scaler, x_training, x_testing = Scaling().scaling(x_training, x_testing, self.data['Feature Scaling'])
 
             # Feature Selection
-            self.selector, x_training, x_testing, labels = Selection().selection(x_training, x_testing, self.data['Feature Selection'])
+            self.selector, x_training, x_testing, self.selected_features = Selection().selection(x_training, x_testing, self.data['Feature Selection'], columns, y_training)
 
+            x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
             # Data Balancing
-            x_training, y_training = Balancing().dataBalancing(x_training, labels, self.data['Data Balancing'])
+            x_training, y_training = Balancing().dataBalancing(x_training, y_training, self.data['Data Balancing'])
 
+            x_training = x_training[:, :-1]
             # Model classification
-            prediction, self.classifier = Classification().data_classification(x_training, x_testing, y_training, y_testing,
+            prediction, self.classifier = Classification().data_classification(x_training, x_testing, y_training,
                                                                         self.data['Classifier'])
 
             # Metrics calculation
-            truth = np.argmax(y_testing, axis=1)
-            Metrics().metrics(truth, prediction)
+            Metrics().metrics(y_testing, prediction)
 
             # Model explanation
             Explainability().explainability(x_testing, y_testing, prediction, self.classifier,
@@ -97,14 +100,20 @@ class Dispatcher:
 
         #save models
         pickle.dump(self.scaler, open(self.dir_path + "/scaler.sav", 'wb'))
-        pickle.dump(self.selector, open(self.dir_path + "/selector.sav", 'wb'))
+        if self.selector is not None:
+            pickle.dump(self.selector, open(self.dir_path + "/selector.sav", 'wb'))
         pickle.dump(self.classifier, open(self.dir_path + "/classifier.sav", 'wb'))
-
 
         # Prediction on another test set
         print("\n\nPrediction on input data...")
         self.dataset_to_predict = self.scaler.fit_transform(self.dataset_to_predict)
-        self.dataset_to_predict = self.selector.transform(self.dataset_to_predict)
+        columns_predict = columns.drop(labels=['vulnerable'])
+        if self.selector is None and self.data['Feature Selection'] != "default":
+            self.dataset_to_predict = pd.DataFrame(self.dataset_to_predict, columns=columns_predict)
+            self.dataset_to_predict = self.dataset_to_predict.loc[:, self.selected_features]
+        elif self.data['Feature Selection'] != "default":
+            self.dataset_to_predict = self.selector.transform(self.dataset_to_predict)
+        print(self.dataset_to_predict)
         predictions = self.classifier.predict(self.dataset_to_predict)
 
         get_first_char = np.vectorize(lambda x: int(np.floor(x)))
