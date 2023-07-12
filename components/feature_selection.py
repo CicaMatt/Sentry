@@ -29,6 +29,7 @@ class Selection:
             corr = x_training.corr()["vulnerable"].sort_values(ascending=False)[1:]
             abs_corr = abs(corr)
             relevant_features = abs_corr[abs_corr > 0.4]
+            print("STEFANO", relevant_features)
             x_training = x_training.loc[:, relevant_features]
 
             x_testing = x_testing.loc[:, relevant_features]

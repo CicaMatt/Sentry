@@ -25,5 +25,5 @@ class Balancing:
             balancer = RandomUnderSampler(random_state=42)
             x_training_bal, y_training_bal = balancer.fit_resample(x_training, labels)
 
-        return balancer, x_training_bal, y_training_bal
+        return x_training_bal, y_training_bal
 

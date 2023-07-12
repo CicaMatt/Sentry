@@ -2,10 +2,12 @@ import os
 import shutil
 import sys
 
+import pandas as pd
 import requests
 import yaml
 
 from components.data_cleaning import Cleaning
+from components.metrics import Metrics
 from components.setup import Setup
 from dispatcher import Dispatcher
 from YAMLFileFormatException import YAMLFileFormatException
@@ -108,9 +110,8 @@ def main():
     # Generating dataset from repository link
     # Dataset_generation.start(repo_link=repo_link)
     to_predict = Setup().data_setup("dataset_pango.csv")
-
-    # Data Cleaning
-    to_predict = Cleaning().cleaning(to_predict, "dataimputation")
+    vulnerable = to_predict["vulnerable"]
+    to_predict = to_predict.drop(columns=["vulnerable"])
 
     root = repo_link.rsplit('/', 1)[-1]
     if os.path.exists(root):
@@ -125,6 +126,9 @@ def main():
             dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict)
             dispatcher.start()
 
+    predict = pd.read_csv("generated_dataset.csv")
+    y_predict = predict["vulnerable"]
+    Metrics().metrics(vulnerable, y_predict)
 
     #quando finiscono tutte le chiamate facciamo test statistici e statistica descrittiva
 

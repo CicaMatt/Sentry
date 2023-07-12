@@ -1,11 +1,13 @@
 import pickle
 
 import numpy as np
+import pandas as pd
 from numpy import savetxt
 from sklearn.preprocessing import MinMaxScaler
 
 from components.data_balancing import Balancing
 from components.data_cleaning import Cleaning
+from components.explainability import Explainability
 from components.feature_scaling import Scaling
 from components.feature_selection import Selection
 from components.metrics import Metrics
@@ -29,27 +31,30 @@ class Dispatcher:
         # Data Cleaning
         data = Cleaning().cleaning(data, self.data['Data Cleaning'])
 
-        selector, scaler, balancer, classifier = None, None, None, None
-
         # Validation - Train/Test Split
         if (self.data['Validation'] == "ttsplit"):
             x_training, x_testing, y_training, y_testing = Validation().data_validation(data, self.data['Validation'])
 
             # Feature Scaling
-            scaler, x_training, x_testing = Scaling().scaling(x_training, x_testing, self.data['Feature Scaling'])
+            self.scaler, x_training, x_testing = Scaling().scaling(x_training, x_testing, self.data['Feature Scaling'])
 
             # Feature Selection
-            selector, x_training, x_testing, labels = Selection().selection(x_training, x_testing, self.data['Feature Selection'])
+            self.selector, x_training, x_testing, labels = Selection().selection(x_training, x_testing, self.data['Feature Selection'])
 
             # Data Balancing
-            balancer, x_training, y_training = Balancing().dataBalancing(x_training, labels, self.data['Data Balancing'])
+            x_training, y_training = Balancing().dataBalancing(x_training, labels, self.data['Data Balancing'])
 
             # Model classification
-            prediction, classifier = Classification().data_classification(x_training, x_testing, y_training, y_testing,
+            prediction, self.classifier = Classification().data_classification(x_training, x_testing, y_training, y_testing,
                                                                         self.data['Classifier'])
 
             # Metrics calculation
-            Metrics().metrics(y_testing, prediction, classifier)
+            truth = np.argmax(y_testing, axis=1)
+            Metrics().metrics(truth, prediction)
+
+            # Model explanation
+            Explainability().explainability(x_testing, y_testing, prediction, self.classifier,
+                                            self.data['Explaination Method'])
 
         # Validation - Stratified or Standard K Fold Validation
         else:
@@ -69,38 +74,47 @@ class Dispatcher:
                                                             self.data['Feature Selection'])
 
                 # Data Balancing
-                balancer, x_training = Balancing().dataBalancing(x_training, self.data['Data Balancing'])
+                x_training, y_training = Balancing().dataBalancing(x_training, self.data['Data Balancing'])
 
                 # Model classification
                 prediction, classifier = Classification().data_classification(x_training, x_testing, y_training,
                                                                             y_testing, self.data['Classifier'])
 
                 # Metrics calculation
-                accuracy = Metrics().metrics(y_testing, prediction, classifier)
+                accuracy = Metrics().metrics(y_testing, prediction)
                 if accuracy > best_accuracy:
                     best_accuracy = accuracy
                     self.classifier = classifier
+                    self.scaler = scaler
+                    self.selector = selector
+                    self.features_testing = x_testing
+                    self.testing_labels = y_testing
+
+
+            # Model explanation
+            # Explainability().explainability(self.features_testing, self.testing_labels, prediction, self.classifier,
+            #                                 self.data['Explaination Method'])
 
         #save models
-        pickle.dump(scaler, open(self.dir_path + "/scaler.sav", 'wb'))
-        pickle.dump(selector, open(self.dir_path + "/selector.sav", 'wb'))
-        pickle.dump(balancer, open(self.dir_path + "/balancer.sav", 'wb'))
-        pickle.dump(classifier, open(self.dir_path + "/classifier.sav", 'wb'))
+        pickle.dump(self.scaler, open(self.dir_path + "/scaler.sav", 'wb'))
+        pickle.dump(self.selector, open(self.dir_path + "/selector.sav", 'wb'))
+        pickle.dump(self.classifier, open(self.dir_path + "/classifier.sav", 'wb'))
 
 
         # Prediction on another test set
-        print("\n\nPrediction on second test set")
-        self.dataset_to_predict = scaler.fit_transform(self.dataset_to_predict)
-        self.dataset_to_predict = selector.transform(self.dataset_to_predict)
+        print("\n\nPrediction on input data...")
+        self.dataset_to_predict = self.scaler.fit_transform(self.dataset_to_predict)
+        self.dataset_to_predict = self.selector.transform(self.dataset_to_predict)
+        predictions = self.classifier.predict(self.dataset_to_predict)
 
-        predictions = classifier.predict(self.dataset_to_predict)
+        get_first_char = np.vectorize(lambda x: int(np.floor(x)))
+        predictions = get_first_char(predictions)
         complete_dataset = self.dataset_to_predict
-        np.insert(complete_dataset, 6, predictions, axis=1)
-        savetxt('generated_dataset.csv', complete_dataset, delimiter=',')
+        complete_dataset = pd.DataFrame(complete_dataset)
+        complete_dataset.insert(len(complete_dataset.columns), "vulnerable", predictions)
+        complete_dataset.to_csv("generated_dataset.csv")
 
         # # Hyperparameters optimization
         # model = HP_Optimization().hp_optimization(self.data['Hyper-parameters Optimization'])
         #
-        # # Model explanation
-        # Explainability().explainability(model, x_training, y_training, x_testing, y_testing, prediction, classifier,
-        #                               self.data['Explaination Method'])
+

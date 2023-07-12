@@ -5,7 +5,7 @@ from sklearn import metrics
 import seaborn
 
 class Metrics:
-    def metrics(self, y_testing, prediction, classifier):
+    def metrics(self, truth, prediction):
         # argmax restituisce gli indici dei valori massimi lungo un asse
         # la flag serve perchè la prediction di alcuni classificatori viene restituita in modo diverso
 
@@ -14,7 +14,7 @@ class Metrics:
         # vedere bene se ci vuole questo pezzo
         # if classifier.__class__.__name__ != "SVC":
         #     prediction = np.argmax(prediction, axis=1)
-        truth = np.argmax(y_testing, axis=1)
+
 
         accuracy_score = metrics.accuracy_score(truth, prediction)
         precision_score = metrics.precision_score(truth, prediction, average='weighted', zero_division=0)

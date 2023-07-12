@@ -6,6 +6,8 @@ class Setup:
     def data_setup(self, filename):
         print("Reading file...")
         data = pd.read_csv(filename)
+        allowed_extensions = ('.c', '.py', '.java')
+        data = data[data['filename'].str.endswith(allowed_extensions)]
         data = data.drop(columns=["filename"])
         count_zeros = data.eq(0).sum(axis=1)
 
