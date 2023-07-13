@@ -113,7 +113,6 @@ class Dispatcher:
                     self.testing_labels = y_testing
                 fold += 1
 
-
             print("\nBest fold: #" + str(best_fold))
             print("Accuracy: " + "{:.2%}".format(float(best_accuracy)))
             print("Precision: " + "{:.2%}".format(float(best_precision)))
