@@ -13,6 +13,8 @@ class Classification:
             print("Training...")
             model = neighbors.KNeighborsClassifier(n_neighbors=5)
 
+            # print(y_training)
+
             start = time.time()
             model.fit(x_training, y_training)
             print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
@@ -44,7 +46,7 @@ class Classification:
             model = ensemble.RandomForestClassifier(criterion="entropy", random_state=100, min_samples_leaf=5,
                                                     warm_start=True)
             start = time.time()
-            print(pd.DataFrame(x_training))
+            # print(pd.DataFrame(x_training))
             model.fit(x_training, y_training)
             print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
 

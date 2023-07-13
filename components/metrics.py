@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from sklearn import metrics
 import seaborn
 
+
 class Metrics:
     def metrics(self, truth, prediction):
         # argmax restituisce gli indici dei valori massimi lungo un asse
@@ -13,8 +14,9 @@ class Metrics:
 
         # vedere bene se ci vuole questo pezzo
         # if classifier.__class__.__name__ != "SVC":
-        #     prediction = np.argmax(prediction, axis=1)
-
+        # print(prediction.shape)
+        # print(truth.shape)
+        # truth = np.argmax(truth, axis=1)
 
         accuracy_score = metrics.accuracy_score(truth, prediction)
         precision_score = metrics.precision_score(truth, prediction, average='weighted', zero_division=0)
@@ -26,4 +28,4 @@ class Metrics:
         print("Recall: " + "{:.2%}".format(float(recall_score)))
         print("F1: " + "{:.2%}".format(float(f1_score)))
 
-        return accuracy_score
+        return accuracy_score, precision_score, recall_score, f1_score

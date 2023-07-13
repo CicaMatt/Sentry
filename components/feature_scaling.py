@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 class Scaling:
     def scaling(self, x_training, x_testing, method):
-        print("Scaling training and test set features")
+        # print("Scaling training and test set features")
 
         if method == "zscore" or method == "default":
             # Feature Scaling - Z-Score Normalization

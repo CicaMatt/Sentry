@@ -4,7 +4,10 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
 
 
 class Selection:
-    def selection(self, x_training, x_testing, method, columns, labels):
+    def selection(self, x_training, x_testing, columns, labels, method):
+        # print("Selecting best features for dataset")
+
+
         selector = None
         selected_features = None
 
@@ -28,6 +31,7 @@ class Selection:
 
         # Pearson's Correlation
         else:
+            print(columns.argmax())
             x_testing = pd.DataFrame(x_testing, columns=columns)
             x_training = pd.DataFrame(x_training, columns=columns)
 

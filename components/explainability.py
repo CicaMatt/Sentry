@@ -4,13 +4,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn import metrics
 from sklearn.inspection import permutation_importance
-
-
-from sklearn.datasets import make_hastie_10_2
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.inspection import PartialDependenceDisplay
 
-# ULTIMI DUE METODI DA TESTARE
 
 class Explainability:
     def explainability(self, X_test, truth, prediction, classifier, method):
@@ -43,20 +39,23 @@ class Explainability:
             r = permutation_importance(classifier, X_test, truth,
                                        n_repeats=30,
                                        random_state=0)
+            # Iteration on importance mean scores of feature in descending order
             for i in r.importances_mean.argsort()[::-1]:
+                # Check if mean importance of the feature, minus two times the std deviation is higher than 0,
+                # to determine if feature importance is meaningful when compared to permutation variability
                 if r.importances_mean[i] - 2 * r.importances_std[i] > 0:
                     print(f"{features[i]:<8}"
-                        f"{r.importances_mean[i]:.3f}"
-                        f" +/- {r.importances_std[i]:.3f}")
+                          f"{r.importances_mean[i]:.3f}"
+                          f" +/- {r.importances_std[i]:.3f}")
 
 
         # Partial Dependence Plots
         #da correggere
         else:
-            X, y = make_hastie_10_2(random_state=0)
-            clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0).fit(X, y)
+            clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0).fit(
+                X_test, truth)
             features = [0, 1, (0, 1)]
-            PartialDependenceDisplay.from_estimator(clf, X, features)
+            PartialDependenceDisplay.from_estimator(clf, X_test, features)
             plt.gcf()
             plt.gca()
 

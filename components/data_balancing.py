@@ -1,10 +1,11 @@
-import numpy as np
 from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.under_sampling import NearMiss, RandomUnderSampler
 
 
 class Balancing:
     def dataBalancing(self, x_training, labels, method):
+        # print("Balancing dataset")
+
         # features = np.delete(x_training, 5, 1)
         # features = x_training.iloc[:, :-1]
         # labels = x_training.iloc[:, -1]
