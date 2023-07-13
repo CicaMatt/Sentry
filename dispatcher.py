@@ -15,15 +15,16 @@ from components.validation import Validation
 
 class Dispatcher:
 
-    def __init__(self, data, repo_link, path, to_predict):
+    def __init__(self, data, repo_link, path, to_predict, path_training):
         self.data = data
         self.repo_link = repo_link
         self.dir_path = path
         self.dataset_to_predict = to_predict
+        self.path_training = path_training
 
     def start(self):
         # Data setup
-        data = Setup().data_setup("dataset.csv")
+        data = Setup().data_setup(self.path_training)
 
         # Data Cleaning
         data = Cleaning().cleaning(data, self.data['Data Cleaning'])
@@ -60,14 +61,12 @@ class Dispatcher:
 
         # Validation - Stratified or Standard K Fold Validation
         else:
-            labels_full = data["vulnerable"]
             indexes, data, labels = Validation().data_validation(data, self.data['Validation'])
             best_accuracy = 0
             best_precision = 0
             best_recall = 0
             best_f1 = 0
             best_mean = 0
-
             fold = 1
             best_fold = 0
 
@@ -89,11 +88,8 @@ class Dispatcher:
                 selector, x_training, x_testing, selected_features = Selection().selection(x_training, x_testing, columns, y_training,
                                                             self.data['Feature Selection'])
 
-                # print(x_training.shape)
-                # print(y_training.shape)
-
-                x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
                 # Data Balancing
+                x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
                 x_training, y_training = Balancing().dataBalancing(x_training, y_training, self.data['Data Balancing'])
                 x_training = x_training[:, :-1]
 

@@ -1,0 +1,2 @@
+class DatasetFormatException(Exception):
+    pass

@@ -1,6 +1,7 @@
 ---
 
 repo: https://github.com/bratsche/pango
+dataset: "dataset_pango.csv"
 
 configurations:
   - 0:

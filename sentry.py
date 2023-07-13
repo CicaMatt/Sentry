@@ -1,12 +1,9 @@
 import os
 import shutil
 import sys
-
 import pandas as pd
 import requests
 import yaml
-
-from components.data_cleaning import Cleaning
 from components.metrics import Metrics
 from components.setup import Setup
 from dispatcher import Dispatcher
@@ -16,7 +13,6 @@ def verifica_link_github(link):
     try:
         response = requests.get(link)
         if response.status_code == 200:
-            print("Link is working")
             return 1
         else:
             print("Link does not exists")
@@ -37,6 +33,13 @@ def main():
     #così si accede ai singoli elementi della configurazione
     #print(data['configurations'][0][0]['Classifier'])
     try:
+        if "dataset" not in data or data["dataset"].lower() == "default":
+            data["dataset"] = "dataset.csv"
+        elif not os.path.exists(data["dataset"]):
+            raise YAMLFileFormatException("Path to the dataset was not found")
+        else:
+            path_training = data["dataset"]
+
         if not verifica_link_github(data["repo"]):
             raise YAMLFileFormatException("Wrong Repository path")
 
@@ -123,7 +126,7 @@ def main():
             path += str(i)
             os.mkdir(path)
             # print(data['configurations'][i][i])
-            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict)
+            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict, path_training)
             dispatcher.start()
 
     predict = pd.read_csv("generated_dataset.csv")
