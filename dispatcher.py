@@ -15,16 +15,17 @@ from components.validation import Validation
 
 class Dispatcher:
 
-    def __init__(self, data, repo_link, path, to_predict, path_training):
+    def __init__(self, data, repo_link, path, to_predict, path_training, prediction_filename_column):
         self.data = data
         self.repo_link = repo_link
         self.dir_path = path
         self.dataset_to_predict = to_predict
         self.path_training = path_training
+        self.prediction_filename_column = prediction_filename_column
 
     def start(self):
         # Data setup
-        data = Setup().data_setup(self.path_training)
+        data, filename_column = Setup().data_setup(self.path_training)
 
         # Data Cleaning
         data = Cleaning().cleaning(data, self.data['Data Cleaning'])
@@ -133,7 +134,7 @@ class Dispatcher:
         # Final prediction on another test set
         print("\n\nPrediction on input data...")
         self.dataset_to_predict = self.scaler.fit_transform(self.dataset_to_predict)
-        columns_predict = columns.drop(labels=['vulnerable'])
+        columns_predict = columns[:-1]
         if self.selector is None and self.data['Feature Selection'] != "default":
             self.dataset_to_predict = pd.DataFrame(self.dataset_to_predict, columns=columns_predict)
             self.dataset_to_predict = self.dataset_to_predict.loc[:, self.selected_features]
@@ -146,9 +147,7 @@ class Dispatcher:
         complete_dataset = self.dataset_to_predict
         complete_dataset = pd.DataFrame(complete_dataset)
         complete_dataset.insert(len(complete_dataset.columns), "vulnerable", predictions)
-        complete_dataset.to_csv("generated_dataset.csv")
-
-        # # Hyperparameters optimization
-        # model = HP_Optimization().hp_optimization(self.data['Hyper-parameters Optimization'])
-        #
+        complete_dataset = complete_dataset.reindex(['filename', *complete_dataset.columns],
+                                                    axis=1).assign(filename=self.prediction_filename_column)
+        complete_dataset.to_csv("generated_dataset.csv", index=False)
 

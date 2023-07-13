@@ -29,6 +29,7 @@ def main():
 
     with open(args[0]) as f:
         data = yaml.full_load(f)
+    path_training = None
 
     #così si accede ai singoli elementi della configurazione
     #print(data['configurations'][0][0]['Classifier'])
@@ -112,7 +113,7 @@ def main():
 
     # Generating dataset from repository link
     # Dataset_generation.start(repo_link=repo_link)
-    to_predict = Setup().data_setup("dataset_pango.csv")
+    to_predict, prediction_filename_column = Setup().data_setup("dataset_pango.csv")
     vulnerable = to_predict["vulnerable"]
     to_predict = to_predict.drop(columns=["vulnerable"])
 
@@ -126,7 +127,8 @@ def main():
             path += str(i)
             os.mkdir(path)
             # print(data['configurations'][i][i])
-            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict, path_training)
+            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict, path_training,
+                                    prediction_filename_column.tolist())
             dispatcher.start()
 
     predict = pd.read_csv("generated_dataset.csv")
