@@ -4,8 +4,9 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
 
 
 class Selection:
-    def selection(self, x_training, x_testing, columns, labels, y_testing, method):
+    def selection(self, x_training, x_testing, columns, labels, y_testing, method, k=None):
         # print("Selecting best features for dataset")
+
 
         selector = None
         selected_features = None
@@ -24,13 +25,15 @@ class Selection:
             x_testing = (x_testing - x_testing.min(0)) / x_testing.ptp(0)
 
             selector = SelectKBest(chi2, k=6)
+            if k > x_training.shape[1]:
+                raise YAMLFileFormatException("K must be less than the number of features in the dataset, the default dataset has 14")
+            selector = SelectKBest(chi2, k=k)
+
+            # features_x_training = np.delete(x_training, 14, 1)
+            # features_x_testing = np.delete(x_testing, 14, 1)
 
             x_training = selector.fit_transform(x_training, labels)
             x_testing = selector.transform(x_testing)
-
-            feature_indices = selector.get_support(indices=True)
-            selected_features = [columns[i] for i in feature_indices]
-
 
         # Pearson's Correlation
         else:
@@ -51,7 +54,6 @@ class Selection:
                     selected_features.append(x_training.columns[i])
             x_training = x_training.loc[:, selected_features]
             x_testing = x_testing.loc[:, selected_features]
-            print(selected_features)
 
         return selector, x_training, x_testing, selected_features
 
