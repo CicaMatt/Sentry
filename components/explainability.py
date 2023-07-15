@@ -16,7 +16,7 @@ class Explainability:
         features = list(x_test.columns.values)
 
         # Confusion Matrix
-        if method == "confusionmatrix":
+        if "confusionmatrix" in method:
             if classifier == "svm":
                 prediction = np.argmax(prediction, axis=1)
 
@@ -37,7 +37,7 @@ class Explainability:
             plt.show()
 
         # Permutation feature importance
-        elif method == "permutation":
+        if "permutation" in method:
             r = permutation_importance(classifier, x_test, truth,
                                        n_repeats=30,
                                        random_state=0)
@@ -52,7 +52,7 @@ class Explainability:
 
 
         # Partial Dependence Plots
-        else:
+        if "partialdependence" in method:
             warnings.filterwarnings('ignore')
             x_training = pd.DataFrame(x_training, columns=selected_column_names)
             PartialDependenceDisplay.from_estimator(classifier, x_training, features=np.arange(x_training.shape[1]), feature_names=selected_column_names)

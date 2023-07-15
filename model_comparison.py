@@ -1,45 +1,83 @@
 import pickle
+import warnings
 
+import numpy as np
 import pandas as pd
 
-from components import statistical_tests
+from components.statistical_tests import StatisticalTests
+from components.data_balancing import Balancing
+from components.data_cleaning import Cleaning
+from components.feature_scaling import Scaling
+from components.feature_selection import Selection
+from components.setup import Setup
 from components.validation import Validation
 
 
-def main():
-    print("STEFFEN!")
-    data = pd.read_csv('dataset_pango.csv')
-    filename_column = data[data.columns[0]]
-    data = data.drop(columns=data.columns[0])
-    labels = (pd.get_dummies(data['vulnerable'], prefix='vulnerable'))
+class Comparer:
+    def __init__(self, configuration, dataset, path1, path2):
+        self.configuration = configuration
+        self.dataset = dataset
+        self.path1 = path1
+        self.path2 = path2
 
-    x_training, x_testing, y_training, y_testing = Validation().data_validation(data, "ttsplit")
+    def start(self):
+        warnings.filterwarnings('ignore')
 
-    first_model = pickle.load(open('pango/configuration0/classifier.sav', 'rb'))
-    first_scaler = pickle.load(open('pango/configuration0/scaler.sav', 'rb'))
-    first_selector = pickle.load(open('pango/configuration0/selector.sav', 'rb'))
-    first_prediction = pd.read_csv('pango/configuration0/prediction.csv')
+        # Data setup
+        data = Setup().data_setup(self.dataset)
 
-    second_model = pickle.load(open('pango/configuration1/classifier.sav', 'rb'))
-    second_scaler = pickle.load(open('pango/configuration1/scaler.sav', 'rb'))
-    second_selector = pickle.load(open('pango/configuration1/selector.sav', 'rb'))
-    second_prediction = pd.read_csv('pango/configuration1/prediction.csv')
+        # Data Cleaning
+        data, filename_column = Cleaning().cleaning(data, self.configuration['Data Cleaning'])
+        columns = data.columns
 
-    x_training = first_scaler.fit_transform(x_training)
-    x_testing = first_scaler.transform(x_testing)
+        labels = (pd.get_dummies(data['vulnerable'], prefix='vulnerable')).values
 
-    x_training = first_selector.fit_transform(x_training, labels)
-    x_testing = first_selector.transform(x_testing)
+        x_training, x_testing, y_training, y_testing = Validation().data_validation(data,
+                                                                                    self.configuration['Validation'])
 
-    # su questo si deve applicare il preprocessing prima
-    statistical_tests.StatisticalTests.two_proportions_test(x_training, x_testing, y_training, y_testing, first_model,
-                                                            second_model)
+        x_training = x_training[:, :-1]
+        x_testing = x_testing[:, :-1]
 
-    # bisogna salvare anche le predizioni nel configuration
-    statistical_tests.StatisticalTests.mcnemar_test(y_testing, first_prediction, second_prediction)
+        scaler, x_training, x_testing = Scaling().scaling(x_training, x_testing, self.configuration['Feature Scaling'])
 
-    statistical_tests.StatisticalTests.cv_paired_test(data.values, labels.values, first_model, second_model)
+        if self.configuration['Feature Selection'] == "kbest":
+            selector, x_training, x_testing, selected_features = Selection().selection(x_training, x_testing,
+                                                                                            columns, y_training,
+                                                                                            y_testing,
+                                                                                            self.configuration[
+                                                                                                'Feature Selection'],
+                                                                                            self.configuration["K"])
+        else:
+            selector, x_training, x_testing, selected_features = Selection().selection(x_training,
+                                                                                            x_testing,
+                                                                                            columns,
+                                                                                            y_training,
+                                                                                            y_testing,
+                                                                                            self.configuration[
+                                                                                                'Feature Selection'])
 
+        x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
+        x_training, y_training, balancer = Balancing().dataBalancing(x_training, y_training,
+                                                                          self.configuration['Data Balancing'])
+        x_training = x_training[:, :-1]
 
-if __name__ == "__main__":
-    main()
+        first_model = pickle.load(open(self.path1 + '/classifier.sav', 'rb'))
+        first_prediction = pd.read_csv(self.path1 + '/prediction.csv')
+
+        second_model = pickle.load(open(self.path2 + '/classifier.sav', 'rb'))
+        second_prediction = pd.read_csv(self.path2 + '/prediction.csv')
+
+        # su questo si deve applicare il preprocessing prima
+        # StatisticalTests.two_proportions_test(self=self, x_training=x_training, y_training=y_training, x_test=x_testing, y_test=y_testing, first_model=first_model, second_model=second_model)
+
+        print(labels.shape)
+        first_prediction = first_prediction.values.flatten()
+        second_prediction = second_prediction.values.flatten()
+        print(first_prediction.shape)
+        print(second_prediction.shape)
+
+        # bisogna salvare anche le predizioni nel configuration
+        y_testing_imported = pd.read_csv(self.path2 + '/y_testing.csv').values.flatten()
+        StatisticalTests.mcnemar_test(self, y_testing_imported, first_prediction, second_prediction)
+
+        StatisticalTests.cv_paired_test(self, x_training, y_training, first_model, second_model)

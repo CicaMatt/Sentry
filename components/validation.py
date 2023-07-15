@@ -5,10 +5,10 @@ from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 
 class Validation:
     def data_validation(self, data, method):
-        # training data for the neural net
+        # Training data for the neural net
         training_data = data.values
 
-        # labels for training
+        # Labels for training
         labels_full = pd.get_dummies(data['vulnerable'], prefix='vulnerable')
         labels = labels_full.values
 

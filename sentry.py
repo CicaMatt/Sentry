@@ -8,6 +8,8 @@ from components.metrics import Metrics
 from components.setup import Setup
 from dispatcher import Dispatcher
 from YAMLFileFormatException import YAMLFileFormatException
+from model_comparison import Comparer
+
 
 def verifica_link_github(link):
     try:
@@ -57,7 +59,6 @@ def main():
                     data['configurations'][i][i]["Data Cleaning"] = "default"
                 else:
                     cleaning = pipeline[i]["Data Cleaning"].lower()
-                    # if not (cleaning == "dataimputation" or cleaning == "shuffling" or cleaning == "duplicatesremoval"):
                     if not ("dataimputation" in cleaning or "shuffling" in cleaning or "duplicatesremoval" in cleaning):
                         raise YAMLFileFormatException("Wrong Data Cleaning input inserted")
                 # Feature Scaling
@@ -108,14 +109,15 @@ def main():
                     data['configurations'][i][i]["Explaination Method"] = "default"
                 else:
                     explain = pipeline[i]["Explaination Method"].lower()
-                    if not (explain == "confusionmatrix" or explain == "permutation" or explain == "partialdependence"):
+                    if not ("confusionmatrix" in explain or "permutation" in explain or "partialdependence" in explain):
                         raise YAMLFileFormatException("Wrong Explaination Method input inserted")
     except Exception as e:
         sys.exit(e.args[0])
 
     # Generating dataset from repository link
     # Dataset_generation.start(repo_link=repo_link)
-    to_predict = Setup().data_setup("dataset_django.csv")
+    dataset = "dataset_django.csv"
+    to_predict = Setup().data_setup(dataset)
     vulnerable = to_predict["vulnerable"]
     to_predict = to_predict.drop(columns=["vulnerable"])
 
@@ -129,14 +131,19 @@ def main():
             path += str(i)
             os.mkdir(path)
             # print(data['configurations'][i][i])
-            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict, path_training)
+            dispatcher = Dispatcher(data['configurations'][i][i], path, to_predict, path_training)
             dispatcher.start()
 
     predict = pd.read_csv("generated_dataset.csv")
     y_predict = predict["vulnerable"]
     Metrics().metrics(vulnerable, y_predict)
 
-    #quando finiscono tutte le chiamate facciamo test statistici e statistica descrittiva
+    # Statistical tests
+    print("\n\nStatistical tests")
+    path1 = "pango/configuration0"
+    path2 = "pango/configuration1"
+    comparer = Comparer(data['configurations'][i][i], dataset, path1, path2)
+    comparer.start()
 
 if __name__ == "__main__":
     main()

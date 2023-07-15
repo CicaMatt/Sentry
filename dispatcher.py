@@ -15,9 +15,8 @@ from components.validation import Validation
 
 class Dispatcher:
 
-    def __init__(self, data, repo_link, path, to_predict, path_training):
+    def __init__(self, data, path, to_predict, path_training):
         self.data = data
-        self.repo_link = repo_link
         self.dir_path = path
         self.dataset_to_predict = to_predict
         self.path_training = path_training
@@ -34,6 +33,7 @@ class Dispatcher:
         # Validation - Train/Test Split
         if self.data['Validation'] == "ttsplit":
             x_training, x_testing, y_training, y_testing = Validation().data_validation(data, self.data['Validation'])
+
             x_training = x_training[:, :-1]
             x_testing = x_testing[:, :-1]
 
@@ -52,16 +52,18 @@ class Dispatcher:
                                                                                                      y_training,
                                                                                                      y_testing,
                                                                                                      self.data[
-                                                                                                         'Feature Selection'])
+                                                                                             'Feature Selection'])
 
             x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
             # Data Balancing
-            x_training, y_training = Balancing().dataBalancing(x_training, y_training, self.data['Data Balancing'])
+            x_training, y_training, self.balancer = Balancing().dataBalancing(x_training, y_training, self.data['Data Balancing'])
 
             x_training = x_training[:, :-1]
             # Model classification
             self.prediction, self.classifier = Classification().data_classification(x_training, x_testing, y_training,
                                                                         self.data['Classifier'])
+
+            print(y_testing.shape)
 
             # Metrics calculation
             Metrics().metrics(y_testing, self.prediction)
@@ -124,6 +126,8 @@ class Dispatcher:
 
                 # Model classification
                 prediction, classifier = Classification().data_classification(x_training, x_testing, y_training, self.data['Classifier'])
+                print(y_testing.shape)
+                print(prediction.shape)
 
                 # Metrics calculation
                 accuracy, precision, recall, f1 = Metrics().metrics(y_testing, prediction)
@@ -155,15 +159,23 @@ class Dispatcher:
             Explainability().explainability(x_training, self.features_testing, self.testing_labels, self.prediction, self.classifier, self.selected_features,
                                             self.data['Explaination Method'])
 
-        # Saving model, preprocessing components and model prediction
+        # Saving splitted data, model, preprocessing components and model prediction
+        pd.DataFrame(x_training).to_csv(self.dir_path + "/x_training.csv")
+        pd.DataFrame(y_training).to_csv(self.dir_path + "/y_training.csv")
+        pd.DataFrame(x_testing).to_csv(self.dir_path + "/x_testing.csv")
+        pd.DataFrame(y_testing).to_csv(self.dir_path + "/y_testing.csv")
+
         pickle.dump(self.scaler, open(self.dir_path + "/scaler.sav", 'wb'))
         if self.selector is not None:
             pickle.dump(self.selector, open(self.dir_path + "/selector.sav", 'wb'))
+        if self.balancer is not None:
+            pickle.dump(self.balancer, open(self.dir_path + "/balancer.sav", 'wb'))
         pickle.dump(self.classifier, open(self.dir_path + "/classifier.sav", 'wb'))
         if best_prediction is not None:
             pd.DataFrame(best_prediction).to_csv(self.dir_path + "/prediction.csv")
         else:
             pd.DataFrame(self.prediction).to_csv(self.dir_path + "/prediction.csv")
+
 
         # Final prediction on another test set
         print("\n\nPrediction on input data...")
@@ -187,4 +199,10 @@ class Dispatcher:
         complete_dataset = complete_dataset.reindex(['filename', *complete_dataset.columns],
                                                     axis=1).assign(filename=prediction_filename_column.to_list())
         complete_dataset.to_csv("generated_dataset.csv", index=False)
+
+
+
+
+
+
 
