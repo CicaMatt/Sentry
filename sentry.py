@@ -57,7 +57,8 @@ def main():
                     data['configurations'][i][i]["Data Cleaning"] = "default"
                 else:
                     cleaning = pipeline[i]["Data Cleaning"].lower()
-                    if not (cleaning == "dataimputation" or cleaning == "shuffling" or cleaning == "duplicatesremoval"):
+                    # if not (cleaning == "dataimputation" or cleaning == "shuffling" or cleaning == "duplicatesremoval"):
+                    if not ("dataimputation" in cleaning or "shuffling" in cleaning or "duplicatesremoval" in cleaning):
                         raise YAMLFileFormatException("Wrong Data Cleaning input inserted")
                 # Feature Scaling
                 if not "Feature Scaling" in pipeline[i]:
@@ -88,13 +89,6 @@ def main():
                     balancing = pipeline[i]["Data Balancing"].lower()
                     if not (balancing == "smote" or balancing == "nearmiss" or balancing == "undersampling" or balancing == "oversampling"):
                         raise YAMLFileFormatException("Wrong Data Balancing input inserted")
-                # HP Optimization
-                if not "Hyper-parameters Optimization" in pipeline[i]:
-                    data['configurations'][i][i]["Hyper-parameters Optimization"] = "default"
-                else:
-                    optim = pipeline[i]["Hyper-parameters Optimization"].lower()
-                    if not (optim == "randomsearch" or optim == "gridsearch" or optim == "bayessearch"):
-                        raise YAMLFileFormatException("Wrong Hyper-parameters Optimization input inserted")
                 # Classification
                 if not "Classifier" in pipeline[i]:
                     data['configurations'][i][i]["Classifier"] = "default"
@@ -107,7 +101,7 @@ def main():
                     data['configurations'][i][i]["Validation"] = "default"
                 else:
                     validation = pipeline[i]["Validation"].lower()
-                    if not (validation == "ttsplit" or validation == "kfold" or validation == "nestedfold"):
+                    if not (validation == "ttsplit" or validation == "kfold" or validation == "stratifiedfold"):
                         raise YAMLFileFormatException("Wrong Validation input inserted")
                 # Explainability
                 if not "Explaination Method" in pipeline[i]:
@@ -121,7 +115,7 @@ def main():
 
     # Generating dataset from repository link
     # Dataset_generation.start(repo_link=repo_link)
-    to_predict, prediction_filename_column = Setup().data_setup("dataset_django.csv")
+    to_predict = Setup().data_setup("dataset_django.csv")
     vulnerable = to_predict["vulnerable"]
     to_predict = to_predict.drop(columns=["vulnerable"])
 
@@ -135,8 +129,7 @@ def main():
             path += str(i)
             os.mkdir(path)
             # print(data['configurations'][i][i])
-            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict, path_training,
-                                    prediction_filename_column.tolist())
+            dispatcher = Dispatcher(data['configurations'][i][i], repo_link, path, to_predict, path_training)
             dispatcher.start()
 
     predict = pd.read_csv("generated_dataset.csv")

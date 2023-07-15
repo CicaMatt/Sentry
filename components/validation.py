@@ -31,4 +31,4 @@ class Validation:
         else:
             print("Validation - Stratified K-Fold Validation - 5 Fold")
             skf = StratifiedKFold(n_splits=5, shuffle=True)
-            return skf.split(training_data), training_data, labels
+            return skf.split(training_data, labels.argmax(1)), training_data, labels

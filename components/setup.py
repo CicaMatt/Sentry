@@ -22,20 +22,20 @@ class Setup:
             if data.iloc[:, 0].count() == 0:
                 raise DatasetFormatException("Provide files with extension: '.c', '.py', '.java' in the first column")
 
-            filename_column = data[data.columns[0]]
-            data = data.drop(columns=data.columns[0])
+            # filename_column = data[data.columns[0]]
+            # data = data.drop(columns=data.columns[0])
             # testa se nell'ultima colonna del dataset ci sono solo 0 o 1
             if not data[data.columns[len(data.columns)-1]].isin([0, 1]).all():
                 raise DatasetFormatException("Provide dataset with the last column having values either 0 or 1")
+
             # controlla se in tutte le feature ci sono valori interi o float
-            numeric_columns = data.select_dtypes(include=['int', 'float']).columns
-            if len(numeric_columns) != len(data.columns):
-                raise DatasetFormatException("Provide a dataset with integer or float features as "
-                                             "specified by the accepted format")
-            data.to_csv("dataset_stefanizzato.csv")
+            # numeric_columns = data.select_dtypes(include=['int', 'float']).columns
+            # if len(numeric_columns) != len(data.columns):
+            #     raise DatasetFormatException("Provide a dataset with integer or float features as "
+            #                                  "specified by the accepted format")
 
         except Exception as e:
             print(e.with_traceback())
             sys.exit(e.args[0])
 
-        return data, filename_column
+        return data
