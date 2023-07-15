@@ -1,3 +1,5 @@
+import warnings
+
 import pandas as pd
 import seaborn
 import numpy as np
@@ -9,9 +11,9 @@ from sklearn.inspection import PartialDependenceDisplay
 
 
 class Explainability:
-    def explainability(self, X_test, truth, prediction, classifier, method):
-        X_test = pd.DataFrame(X_test)
-        features = list(X_test.columns.values)
+    def explainability(self, x_training, x_test, truth, prediction, classifier, selected_column_names, method):
+        x_test = pd.DataFrame(x_test)
+        features = list(x_test.columns.values)
 
         # Confusion Matrix
         if method == "confusionmatrix":
@@ -36,7 +38,7 @@ class Explainability:
 
         # Permutation feature importance
         elif method == "permutation":
-            r = permutation_importance(classifier, X_test, truth,
+            r = permutation_importance(classifier, x_test, truth,
                                        n_repeats=30,
                                        random_state=0)
             # Iteration on importance mean scores of feature in descending order
@@ -50,12 +52,12 @@ class Explainability:
 
 
         # Partial Dependence Plots
-        #da correggere
         else:
-            clf = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0).fit(
-                X_test, truth)
-            features = [0, 1, (0, 1)]
-            PartialDependenceDisplay.from_estimator(clf, X_test, features)
+            warnings.filterwarnings('ignore')
+            x_training = pd.DataFrame(x_training, columns=selected_column_names)
+            PartialDependenceDisplay.from_estimator(classifier, x_training, features=np.arange(x_training.shape[1]), feature_names=selected_column_names)
             plt.gcf()
             plt.gca()
+            plt.show()
+
 

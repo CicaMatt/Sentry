@@ -89,7 +89,7 @@ def get_commit_count(repo_link):
 
 def main():
     cve = pd.read_csv("./data/CVEfixes.csv")
-    filename = 'dataset.csv'
+    filename = 'dataset_c.csv'
     # skipped_repos = 0
 
     with open(filename, 'w', newline='') as file:

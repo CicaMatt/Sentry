@@ -30,6 +30,7 @@ class Dispatcher:
         # Data Cleaning
         data = Cleaning().cleaning(data, self.data['Data Cleaning'])
         columns = data.columns
+        best_prediction = None
 
         # Validation - Train/Test Split
         if self.data['Validation'] == "ttsplit":
@@ -42,7 +43,7 @@ class Dispatcher:
 
             # Feature Selection
             self.selector, x_training, x_testing, self.selected_features = Selection().selection(x_training, x_testing,
-                                                                 columns, y_training, self.data['Feature Selection'])
+                                                                 columns, y_training, y_testing, self.data['Feature Selection'])
 
             x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
             # Data Balancing
@@ -50,14 +51,17 @@ class Dispatcher:
 
             x_training = x_training[:, :-1]
             # Model classification
-            prediction, self.classifier = Classification().data_classification(x_training, x_testing, y_training,
+            self.prediction, self.classifier = Classification().data_classification(x_training, x_testing, y_training,
                                                                         self.data['Classifier'])
 
             # Metrics calculation
-            Metrics().metrics(y_testing, prediction)
+            Metrics().metrics(y_testing, self.prediction)
 
+            if self.selected_features is None:
+                self.selected_features = columns.delete(-1)
+                print(self.selected_features)
             # Model explanation
-            Explainability().explainability(x_testing, y_testing, prediction, self.classifier,
+            Explainability().explainability(x_training, x_testing, y_testing, self.prediction, self.classifier, self.selected_features,
                                             self.data['Explaination Method'])
 
         # Validation - Stratified or Standard K Fold Validation
@@ -86,7 +90,7 @@ class Dispatcher:
                 scaler, x_training, x_testing = Scaling().scaling(x_training, x_testing, self.data['Feature Scaling'])
 
                 # Feature Selection
-                selector, x_training, x_testing, selected_features = Selection().selection(x_training, x_testing, columns, y_training,
+                selector, x_training, x_testing, self.selected_features = Selection().selection(x_training, x_testing, columns, y_training,
                                                             self.data['Feature Selection'])
 
                 # Data Balancing
@@ -106,6 +110,7 @@ class Dispatcher:
                     best_recall = recall
                     best_f1 = f1
                     best_fold = fold
+                    best_prediction = prediction
                     self.classifier = classifier
                     self.scaler = scaler
                     self.selector = selector
@@ -122,17 +127,22 @@ class Dispatcher:
 
 
             # Model explanation
-            Explainability().explainability(self.features_testing, self.testing_labels, self.prediction, self.classifier,
+            Explainability().explainability(x_training, self.features_testing, self.testing_labels, self.prediction, self.classifier, self.selected_features,
                                             self.data['Explaination Method'])
 
-        # Saving model and preprocessing components
+        # Saving model, preprocessing components and model prediction
         pickle.dump(self.scaler, open(self.dir_path + "/scaler.sav", 'wb'))
         if self.selector is not None:
             pickle.dump(self.selector, open(self.dir_path + "/selector.sav", 'wb'))
         pickle.dump(self.classifier, open(self.dir_path + "/classifier.sav", 'wb'))
+        if best_prediction is not None:
+            pd.DataFrame(best_prediction).to_csv(self.dir_path + "/prediction.csv")
+        else:
+            pd.DataFrame(self.prediction).to_csv(self.dir_path + "/prediction.csv")
 
         # Final prediction on another test set
         print("\n\nPrediction on input data...")
+        self.dataset_to_predict = Cleaning().cleaning(self.dataset_to_predict, self.data['Data Cleaning'])
         self.dataset_to_predict = self.scaler.fit_transform(self.dataset_to_predict)
         columns_predict = columns[:-1]
         if self.selector is None and self.data['Feature Selection'] != "default":
@@ -142,11 +152,13 @@ class Dispatcher:
             self.dataset_to_predict = self.selector.transform(self.dataset_to_predict)
         predictions = self.classifier.predict(self.dataset_to_predict)
 
+        # Normalizing 'vulnerable' column
         get_first_char = np.vectorize(lambda x: int(np.floor(x)))
         predictions = get_first_char(predictions)
         complete_dataset = self.dataset_to_predict
         complete_dataset = pd.DataFrame(complete_dataset)
         complete_dataset.insert(len(complete_dataset.columns), "vulnerable", predictions)
+
         complete_dataset = complete_dataset.reindex(['filename', *complete_dataset.columns],
                                                     axis=1).assign(filename=self.prediction_filename_column)
         complete_dataset.to_csv("generated_dataset.csv", index=False)

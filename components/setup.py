@@ -10,15 +10,18 @@ class Setup:
     def data_setup(self, filename):
         try:
             print("Reading file...")
-            data = pd.read_csv(filename)
-            count_zeros = data.eq(0).sum(axis=1)
+            data = pd.read_csv(filename, na_values=["n/n", "na", "--", "nan", "NaN"])
+
             # Filtra le righe che hanno meno o uguale a 3 valori zero
+            count_zeros = data.eq(0).sum(axis=1)
             data = data[count_zeros <= 3]
 
             allowed_extensions = ('.c', '.py', '.java')
             data = data[data.iloc[:, 0].str.endswith(allowed_extensions)]
+
             if data.iloc[:, 0].count() == 0:
                 raise DatasetFormatException("Provide files with extension: '.c', '.py', '.java' in the first column")
+
             filename_column = data[data.columns[0]]
             data = data.drop(columns=data.columns[0])
             # testa se nell'ultima colonna del dataset ci sono solo 0 o 1
@@ -29,8 +32,10 @@ class Setup:
             if len(numeric_columns) != len(data.columns):
                 raise DatasetFormatException("Provide a dataset with integer or float features as "
                                              "specified by the accepted format")
+            data.to_csv("dataset_stefanizzato.csv")
 
         except Exception as e:
+            print(e.with_traceback())
             sys.exit(e.args[0])
 
         return data, filename_column

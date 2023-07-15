@@ -31,7 +31,6 @@ class StatisticalTests:
         chi2_, p = mcnemar(ary=table, corrected=True)
         print(f"chi² statistic: {chi2_}, p-value: {p}\n")
 
-
     # Compare the performance of two models using a configuration of 5-fold cross-validation (CV), where at each
     # iteration of cross-validation it calculates a 't' statistic to assess whether the difference is statistically
     # significant, taking into account the dependence between coupled measures. The result is a value of p (p-value)

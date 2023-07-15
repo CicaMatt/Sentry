@@ -113,7 +113,7 @@ def main():
 
     # Generating dataset from repository link
     # Dataset_generation.start(repo_link=repo_link)
-    to_predict, prediction_filename_column = Setup().data_setup("dataset_pango.csv")
+    to_predict, prediction_filename_column = Setup().data_setup("dataset_django.csv")
     vulnerable = to_predict["vulnerable"]
     to_predict = to_predict.drop(columns=["vulnerable"])
 
