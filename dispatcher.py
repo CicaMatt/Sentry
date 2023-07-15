@@ -41,8 +41,17 @@ class Dispatcher:
             self.scaler, x_training, x_testing = Scaling().scaling(x_training, x_testing, self.data['Feature Scaling'])
 
             # Feature Selection
-            self.selector, x_training, x_testing, self.selected_features = Selection().selection(x_training, x_testing,
-                                                                 columns, y_training, self.data['Feature Selection'])
+            if self.data['Feature Selection'] == "kbest":
+                self.selector, x_training, x_testing, self.selected_features = Selection().selection(x_training, x_testing,
+                                                                 columns, y_training, self.data['Feature Selection'],
+                                                                                                 self.data["K"])
+            else:
+                self.selector, x_training, x_testing, self.selected_features = Selection().selection(x_training,
+                                                                                                     x_testing,
+                                                                                                     columns,
+                                                                                                     y_training,
+                                                                                                     self.data[
+                                                                                                         'Feature Selection'])
 
             x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
             # Data Balancing

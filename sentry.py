@@ -73,6 +73,14 @@ def main():
                     selection = pipeline[i]["Feature Selection"].lower()
                     if not (selection == "kbest" or selection == "variancethreshold" or selection == "pearsoncorrelation"):
                         raise YAMLFileFormatException("Wrong Feature Selection input inserted")
+
+                    if selection == "kbest":
+                        if "K" not in pipeline[i]:
+                            raise YAMLFileFormatException("Specify the desired number of features via the parameter K")
+                        else:
+                            stringa = str(pipeline[i]["K"]).strip()
+                            if not stringa.isdigit():
+                                raise YAMLFileFormatException("K must be an integer")
                 # Data Balancing
                 if not "Data Balancing" in pipeline[i]:
                     data['configurations'][i][i]["Data Balancing"] = "default"

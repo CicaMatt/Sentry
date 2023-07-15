@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
 from sklearn.feature_selection import VarianceThreshold, SelectKBest, chi2
+from YAMLFileFormatException import YAMLFileFormatException
 
 
 class Selection:
-    def selection(self, x_training, x_testing, columns, labels, method):
+    def selection(self, x_training, x_testing, columns, labels, method, k=None):
         # print("Selecting best features for dataset")
 
 
@@ -21,13 +22,15 @@ class Selection:
 
         # KBest
         elif method == "kbest":
-            selector = SelectKBest(chi2, k=6)
+            if k > x_training.shape[1]:
+                raise YAMLFileFormatException("K must be less than the number of features in the dataset, the default dataset has 14")
+            selector = SelectKBest(chi2, k=k)
 
-            features_x_training = np.delete(x_training, 14, 1)
-            features_x_testing = np.delete(x_testing, 14, 1)
+            # features_x_training = np.delete(x_training, 14, 1)
+            # features_x_testing = np.delete(x_testing, 14, 1)
 
-            x_training = selector.fit_transform(features_x_training, labels)
-            x_testing = selector.transform(features_x_testing)
+            x_training = selector.fit_transform(x_training, labels)
+            x_testing = selector.transform(x_testing)
 
         # Pearson's Correlation
         else:
