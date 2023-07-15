@@ -95,8 +95,21 @@ class Dispatcher:
                 scaler, x_training, x_testing = Scaling().scaling(x_training, x_testing, self.data['Feature Scaling'])
 
                 # Feature Selection
-                selector, x_training, x_testing, selected_features = Selection().selection(x_training, x_testing, columns, y_training,
-                                                            self.data['Feature Selection'])
+                if self.data['Feature Selection'] == "kbest":
+                    selector, x_training, x_testing, selected_features = Selection().selection(x_training,
+                                                                                                         x_testing,
+                                                                                                         columns,
+                                                                                                         y_training,
+                                                                                                         self.data[
+                                                                                                             'Feature Selection'],
+                                                                                                         self.data["K"])
+                else:
+                    selector, x_training, x_testing, selected_features = Selection().selection(x_training,
+                                                                                                         x_testing,
+                                                                                                         columns,
+                                                                                                         y_training,
+                                                                                                         self.data[
+                                                                                                             'Feature Selection'])
 
                 # Data Balancing
                 x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
@@ -121,6 +134,7 @@ class Dispatcher:
                     self.prediction = prediction
                     self.features_testing = x_testing
                     self.testing_labels = y_testing
+                    self.selected_features = selected_features
                 fold += 1
 
             print("\nBest fold: #" + str(best_fold))
