@@ -23,6 +23,11 @@ class Comparer:
     def start(self):
         warnings.filterwarnings('ignore')
 
+        # x_training = pd.read_csv(self.path2 + '/x_training.csv')
+        # y_training = pd.read_csv(self.path2 + '/y_training.csv').values.flatten()
+        # x_testing = pd.read_csv(self.path2 + '/x_testing.csv')
+        # y_testing = pd.read_csv(self.path2 + '/y_testing.csv').values.flatten()
+
         # Data setup
         data = Setup().data_setup(self.dataset)
 
