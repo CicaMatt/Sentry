@@ -63,8 +63,6 @@ class Dispatcher:
             self.prediction, self.classifier = Classification().data_classification(x_training, x_testing, y_training,
                                                                         self.data['Classifier'])
 
-            print(y_testing.shape)
-
             # Metrics calculation
             Metrics().metrics(y_testing, self.prediction)
 

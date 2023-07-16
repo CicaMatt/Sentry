@@ -17,6 +17,17 @@ from github import Github
 
 def metric_calculation_and_writing(start, to, commit_link, writer, label):
     print("Metrics calculation...")
+
+    # metric = ChangeSet(path_to_repo=commit_link,
+    #                    from_commit=start,
+    #                    to_commit=to)
+    #
+    # maximum = metric.max()
+    # average = metric.avg()
+    # print('Maximum number of files committed together: {}'.format(maximum))
+    # print('Average number of files committed together: {}'.format(average))
+
+
     code_churn = CodeChurn(path_to_repo=commit_link,
                            from_commit=start,
                            to_commit=to)
@@ -62,16 +73,16 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
         if file is None:
             continue
         if label == -1:
-            writer.writerow([file, files_count.get(file), files_max.get(file), files_avg.get(file), num_commit.get(file),
-                             count.get(file), minor.get(file), contr_exp.get(file), num_hunks.get(file),
-                             added_count.get(file), added_max.get(file), added_avg.get(file), removed_count.get(file),
-                             removed_max.get(file), removed_avg.get(file)])
+            writer.writerow([file, files_count.get(file), files_max.get(file),
+                        files_avg.get(file), num_commit.get(file), count.get(file), minor.get(file),
+                        contr_exp.get(file), num_hunks.get(file), added_count.get(file), added_max.get(file),
+                        added_avg.get(file), removed_count.get(file), removed_max.get(file), removed_avg.get(file)])
         else:
-            writer.writerow(
-                [file, files_count.get(file), files_max.get(file), files_avg.get(file), num_commit.get(file),
-                 count.get(file), minor.get(file), contr_exp.get(file), num_hunks.get(file),
-                 added_count.get(file), added_max.get(file), added_avg.get(file), removed_count.get(file),
-                 removed_max.get(file), removed_avg.get(file), label])
+            writer.writerow([file, files_count.get(file), files_max.get(file),
+                        files_avg.get(file), num_commit.get(file), count.get(file), minor.get(file),
+                        contr_exp.get(file), num_hunks.get(file), added_count.get(file), added_max.get(file),
+                        added_avg.get(file), removed_count.get(file), removed_max.get(file), removed_avg.get(file),
+                        label])
 
 
 def get_commit_count(repo_link):
@@ -88,13 +99,13 @@ def get_commit_count(repo_link):
 
 
 def main():
-    cve = pd.read_csv("./data/CVEfixes.csv")
-    filename = 'dataset_c.csv'
-    # skipped_repos = 0
+    cve = pd.read_csv("./data/CVEFixes_complete.csv")
+    filename = 'dataset_big2.csv'
+    skipped_repos = 0
 
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['filename', "#CodeChurnInFile",
+        writer.writerow(['filename', "MaxChangeSet", "MinChangeSet", "#CodeChurnInFile",
                          "MaxSizeCodeChurn", "AvgSizeCodeChurn", "#Commits", "#Contributors",
                          "#MinorContributors", "#ContibutorExperience", "#Hunks", "#LinesAdded", "MaxLinesAdded",
                          "AvgLinesAdded", "#LinesRemoved", "MaxLinesRemoved", "AvgLinesRemoved", "vulnerable"])
@@ -120,11 +131,11 @@ def main():
                 #     print(commit.dmm_unit_interfacing)
 
                 # Excluding repos with too many commits
-                # num_commit = get_commit_count(commit_link)
-                # if num_commit > 10000:
-                #     print("\nSkipped repo with", num_commit, "commits")
-                #     skipped_repos = skipped_repos + 1
-                #     continue
+                num_commit = get_commit_count(commit_link)
+                if num_commit > 10000:
+                    print("\nSkipped repo with", num_commit, "commits")
+                    skipped_repos = skipped_repos + 1
+                    continue
 
                 repository = Repository(commit_link, single=fixed_hash)
                 for commit in repository.traverse_commits():
