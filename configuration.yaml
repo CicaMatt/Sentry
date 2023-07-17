@@ -4,11 +4,18 @@ repo: https://github.com/bratsche/pango
 dataset: "dataset_pango.csv"
 
 configurations:
-  - 0:
-      Feature Selection: kbest
-      K: 4
-      Feature Scaling: minmax
-      Data Balancing: smote
-      Classifier: randomforest
-      Validation: ttsplit
-      Explaination Method: confusionmatrix
+    - 0:
+          Feature Scaling: zscore
+          Data Balancing: smote
+          Classifier: randomforest
+          Validation: ttsplit
+          Explaination Method: permutation
+    - 1:
+          Feature Scaling: minmax
+          Data Balancing: smote
+          Classifier: randomforest
+          Validation: ttsplit
+          Explaination Method: permutation
+
+statistical test:
+      - 0: 1, 0

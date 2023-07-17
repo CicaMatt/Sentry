@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import sys
 import pandas as pd
@@ -27,7 +28,9 @@ def verifica_link_github(link):
 def main():
     args = sys.argv[1:]
     if args.__len__() != 1:
-        sys.exit("Only path to YAML file needed")
+        print("Only path to YAML file needed", file=sys.stderr)
+        while True:
+            pass
 
     with open(args[0]) as f:
         data = yaml.full_load(f)
@@ -52,8 +55,14 @@ def main():
         # un messaggio d'errore. Se il parametro non viene inserito dall'utente viene aggiunto con valore default
         #la copia serve per iterare sulla copia e aggiungere gli elementi default all'originale
         copy = dict(data)
+        n = 0
         for pipeline in copy['configurations']:
             for i in pipeline:
+                if i != n:
+                    raise YAMLFileFormatException("Order of configurations is wrong, enter numbers from 0 to N")
+                n += 1
+                if not str(i).isdigit():
+                    raise YAMLFileFormatException("Insert int number for configurations")
                 # Data Cleaning
                 if not "Data Cleaning" in pipeline[i]:
                     data['configurations'][i][i]["Data Cleaning"] = "default"
@@ -111,39 +120,67 @@ def main():
                     explain = pipeline[i]["Explaination Method"].lower()
                     if not ("confusionmatrix" in explain or "permutation" in explain or "partialdependence" in explain):
                         raise YAMLFileFormatException("Wrong Explaination Method input inserted")
+
+        # Generating dataset from repository link
+        # Dataset_generation.start(repo_link=repo_link)
+        dataset = "dataset_pango.csv"
+        to_predict = Setup().data_setup(dataset)
+        vulnerable = to_predict["vulnerable"]
+        to_predict = to_predict.drop(columns=["vulnerable"])
+
+        root = repo_link.rsplit('/', 1)[-1]
+        if os.path.exists(root):
+            shutil.rmtree(root)
+        os.mkdir(root)
+        for pipeline in data['configurations']:
+            for i in pipeline:
+                path = root + './configuration'
+                path += str(i)
+                os.mkdir(path)
+                dispatcher = Dispatcher(data['configurations'][i][i], path, to_predict, path_training)
+                dispatcher.start()
+
+        predict = pd.read_csv("generated_dataset.csv")
+        y_predict = predict["vulnerable"]
+        Metrics().metrics(vulnerable, y_predict)
+
+        if len(copy['configurations']) < 2 and copy['statistical test'] is not None:
+            raise YAMLFileFormatException("There must be at least two configurations to compare them")
+        n = 0
+        for comparison in copy['statistical test']:
+            for i in comparison:
+                if i != n:
+                    raise YAMLFileFormatException("Order of tests is wrong, enter numbers from 0 to N")
+                n += 1
+                if not str(i).isdigit():
+                    raise YAMLFileFormatException("Index must be an integer")
+                pattern = r'^\d+,\s*\d+$'
+                match = re.match(pattern, data['statistical test'][i][i])
+                if match:
+                    numbers = match.group().split(',')
+                    num1, num2 = int(numbers[0]), int(numbers[1])
+                    if num1 == num2:
+                        raise YAMLFileFormatException("You have to compare two different configurations")
+                    if num1 > len(copy['configurations'])-1 or num2 > len(copy['configurations'])-1:
+                        raise YAMLFileFormatException("Input entered not matching the configuration number")
+                else:
+                    raise YAMLFileFormatException("The string entered does not respect the format: n,n")
+
+                # Statistical tests
+                print("\n\nStatistical tests")
+                path1 = root + "/configuration" + str(num1)
+                path2 = root + "/configuration" + str(num2)
+                comparer = Comparer(data['configurations'][i][i], path_training, path1, path2)
+                comparer.start()
+
+
     except Exception as e:
-        sys.exit(e.args[0])
+        print(e.with_traceback(), file=sys.stderr)
+        while True:
+            pass
 
-    # Generating dataset from repository link
-    # Dataset_generation.start(repo_link=repo_link)
-    dataset = "dataset_django.csv"
-    to_predict = Setup().data_setup(dataset)
-    vulnerable = to_predict["vulnerable"]
-    to_predict = to_predict.drop(columns=["vulnerable"])
-
-    root = repo_link.rsplit('/', 1)[-1]
-    if os.path.exists(root):
-        shutil.rmtree(root)
-    os.mkdir(root)
-    for pipeline in data['configurations']:
-        for i in pipeline:
-            path = root + './configuration'
-            path += str(i)
-            os.mkdir(path)
-            # print(data['configurations'][i][i])
-            dispatcher = Dispatcher(data['configurations'][i][i], path, to_predict, path_training)
-            dispatcher.start()
-
-    predict = pd.read_csv("generated_dataset.csv")
-    y_predict = predict["vulnerable"]
-    Metrics().metrics(vulnerable, y_predict)
-
-    # Statistical tests
-    print("\n\nStatistical tests")
-    path1 = "pango/configuration0"
-    path2 = "pango/configuration1"
-    comparer = Comparer(data['configurations'][i][i], dataset, path1, path2)
-    comparer.start()
+    while True:
+        pass
 
 if __name__ == "__main__":
     main()

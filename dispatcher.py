@@ -119,7 +119,7 @@ class Dispatcher:
 
                 # Data Balancing
                 x_training = np.hstack((x_training, y_training.reshape(-1, 1)))
-                x_training, y_training = Balancing().dataBalancing(x_training, y_training, self.data['Data Balancing'])
+                x_training, y_training, self.balancer = Balancing().dataBalancing(x_training, y_training, self.data['Data Balancing'])
                 x_training = x_training[:, :-1]
 
                 # Model classification

@@ -35,7 +35,8 @@ class Setup:
             #                                  "specified by the accepted format")
 
         except Exception as e:
-            print(e.with_traceback())
-            sys.exit(e.args[0])
+            print(e.with_traceback(), file=sys.stderr)
+            while True:
+                pass
 
         return data
