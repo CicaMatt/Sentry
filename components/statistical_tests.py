@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.metrics import accuracy_score
-from mlxtend.evaluate import proportion_difference, mcnemar_table, mcnemar, paired_ttest_5x2cv
+from mlxtend.evaluate import proportion_difference, mcnemar_table, mcnemar, paired_ttest_5x2cv, lift_score
 
 
 class StatisticalTests:
@@ -33,15 +33,9 @@ class StatisticalTests:
         chi2_, p = mcnemar(ary=table, corrected=True)
         print(f"chi² statistic: {chi2_}, p-value: {p}\n")
 
-    # Compare the performance of two models using a configuration of 5-fold cross-validation (CV), where at each
-    # iteration of cross-validation it calculates a 't' statistic to assess whether the difference is statistically
-    # significant, taking into account the dependence between coupled measures. The result is a value of p (p-value)
-    # that indicates the probability of obtaining a difference in the performance of the models at least that
-    # observed, assuming that there is no real difference between the models.
-    # If the p-value is below a predefined significance threshold (usually 0.05), it is concluded that there
-    # is a significant difference between the performance of the models.
-    def cv_paired_test(self, training_data, labels, first_model, second_model):
-        print("5x2 CV Paired t-test")
-        t, p = paired_ttest_5x2cv(estimator1=first_model, estimator2=second_model, X=training_data, y=labels,
-                                  random_seed=42)
-        print(f"t statistic: {t}, p-value: {p}\n")
+    # Scoring function to compute the LIFT metric, the ratio of correctly predicted positive examples
+    # and the actual positive examples in the test dataset.
+    def lift_score_test(self, y_test, prediction):
+        print("Lift Score test")
+        score = lift_score(y_test, prediction, binary=True, positive_label=1)
+        print("Score: " + str(score))

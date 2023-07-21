@@ -9,7 +9,7 @@ class Setup:
 
     def data_setup(self, filename):
         try:
-            print("Reading file...")
+            # print("Reading file...")
             data = pd.read_csv(filename, na_values=["n/n", "na", "--", "nan", "NaN"])
 
             # Filtra le righe che hanno meno o uguale a 3 valori zero

@@ -99,13 +99,13 @@ def get_commit_count(repo_link):
 
 
 def main():
-    cve = pd.read_csv("./data/CVEFixes_complete.csv")
-    filename = 'dataset_big2.csv'
+    cve = pd.read_csv("./data/CVEFixes.csv")
+    filename = 'dataset_venice.csv'
     skipped_repos = 0
 
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['filename', "MaxChangeSet", "MinChangeSet", "#CodeChurnInFile",
+        writer.writerow(['filename', "#CodeChurnInFile",
                          "MaxSizeCodeChurn", "AvgSizeCodeChurn", "#Commits", "#Contributors",
                          "#MinorContributors", "#ContibutorExperience", "#Hunks", "#LinesAdded", "MaxLinesAdded",
                          "AvgLinesAdded", "#LinesRemoved", "MaxLinesRemoved", "AvgLinesRemoved", "vulnerable"])
@@ -132,7 +132,7 @@ def main():
 
                 # Excluding repos with too many commits
                 num_commit = get_commit_count(commit_link)
-                if num_commit > 10000:
+                if num_commit > 100000:
                     print("\nSkipped repo with", num_commit, "commits")
                     skipped_repos = skipped_repos + 1
                     continue

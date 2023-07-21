@@ -134,15 +134,18 @@ def main():
         os.mkdir(root)
         for pipeline in data['configurations']:
             for i in pipeline:
+                print("Configuration n." + str(i))
                 path = root + './configuration'
                 path += str(i)
                 os.mkdir(path)
                 dispatcher = Dispatcher(data['configurations'][i][i], path, to_predict, path_training)
                 dispatcher.start()
 
-        predict = pd.read_csv("generated_dataset.csv")
-        y_predict = predict["vulnerable"]
-        Metrics().metrics(vulnerable, y_predict)
+                predicted = pd.read_csv(path + "/generated_dataset.csv")
+                y_predicted = predicted["vulnerable"]
+                print("Prediction metrics:")
+                Metrics().metrics(vulnerable, y_predicted)
+                print("\n\n------------------------------------------------------------\n\n")
 
         if len(copy['configurations']) < 2 and copy['statistical test'] is not None:
             raise YAMLFileFormatException("There must be at least two configurations to compare them")
@@ -164,13 +167,14 @@ def main():
                     if num1 > len(copy['configurations'])-1 or num2 > len(copy['configurations'])-1:
                         raise YAMLFileFormatException("Input entered not matching the configuration number")
                 else:
-                    raise YAMLFileFormatException("The string entered does not respect the format: n,n")
+                    raise YAMLFileFormatException("The string entered does not match the format: n,n")
 
                 # Statistical tests
-                print("\n\nStatistical tests")
+                print("Statistical tests")
                 path1 = root + "/configuration" + str(num1)
                 path2 = root + "/configuration" + str(num2)
                 comparer = Comparer(data['configurations'][i][i], path_training, path1, path2)
+                # comparer = Comparer(data['configurations'][i][i], "/generated_dataset.csv", path1, path2)
                 comparer.start()
 
 

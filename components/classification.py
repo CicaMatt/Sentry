@@ -10,31 +10,29 @@ class Classification:
 
         if classifier == "kneighbors":
             # Training phase
-            print("Training...")
+            # print("Training...")
             model = neighbors.KNeighborsClassifier(n_neighbors=5)
-
-            # print(y_training)
 
             start = time.time()
             model.fit(x_training, y_training)
-            print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
+            print("Training time: " + str(time.time() - start)[0:7] + "s")
 
             # Prediction phase
-            print("Prediction...")
+            # print("Prediction...")
             prediction = model.predict(x_testing)
             print("Total time: " + str(time.time() - start)[0:7] + "s\n")
 
         elif classifier == "svm":
-            print("Training...")
+            # print("Training...")
             model = svm.SVC(kernel='linear')
 
             start = time.time()
 
             model.fit(x_training, y_training)
-            print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
+            print("Training time: " + str(time.time() - start)[0:7] + "s")
 
             # Prediction phase
-            print("Prediction...")
+            # print("Prediction...")
             # print(x_training.shape)
             # print(x_testing.shape)
 
@@ -42,16 +40,16 @@ class Classification:
             print("Total time: " + str(time.time() - start)[0:7] + "s\n")
 
         else:
-            print("Training...")
+            # print("Training...")
             model = ensemble.RandomForestClassifier(criterion="entropy", random_state=100, min_samples_leaf=5,
                                                     warm_start=True)
             start = time.time()
             # print(pd.DataFrame(x_training))
             model.fit(x_training, y_training)
-            print("\nTraining time: " + str(time.time() - start)[0:7] + "s")
+            print("Training time: " + str(time.time() - start)[0:7] + "s")
 
             # Prediction phase
-            print("Prediction...")
+            # print("Prediction...")
             prediction = model.predict(x_testing)
             print("Total time: " + str(time.time() - start)[0:7] + "s\n")
 

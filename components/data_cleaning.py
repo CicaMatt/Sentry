@@ -4,7 +4,7 @@ from sklearn.impute import SimpleImputer
 
 class Cleaning:
     def cleaning(self, data, method):
-        print("Data preparation...")
+        # print("Data preparation...")
 
         if "duplicatesremoval" in method:
             # Removing all duplicates

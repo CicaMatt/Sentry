@@ -64,11 +64,12 @@ class Dispatcher:
                                                                         self.data['Classifier'])
 
             # Metrics calculation
+            print("Validation metrics:")
             Metrics().metrics(y_testing, self.prediction)
 
             if self.selected_features is None:
                 self.selected_features = columns.delete(-1)
-                print(self.selected_features)
+
             # Model explanation
             Explainability().explainability(x_training, x_testing, y_testing, self.prediction, self.classifier, self.selected_features,
                                             self.data['Explaination Method'])
@@ -196,7 +197,7 @@ class Dispatcher:
 
         complete_dataset = complete_dataset.reindex(['filename', *complete_dataset.columns],
                                                     axis=1).assign(filename=prediction_filename_column.to_list())
-        complete_dataset.to_csv("generated_dataset.csv", index=False)
+        complete_dataset.to_csv(self.dir_path + "/generated_dataset.csv", index=False)
 
 
 

@@ -58,6 +58,7 @@ class Explainability:
             PartialDependenceDisplay.from_estimator(classifier, x_training, features=np.arange(x_training.shape[1]), feature_names=selected_column_names)
             plt.gcf()
             plt.gca()
+            plt.figure(figsize=(10, 20))
             plt.show()
 
 
