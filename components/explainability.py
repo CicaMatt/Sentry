@@ -4,6 +4,7 @@ import pandas as pd
 import seaborn
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
 from sklearn import metrics
 from sklearn.inspection import permutation_importance
 from sklearn.ensemble import GradientBoostingClassifier
@@ -55,10 +56,11 @@ class Explainability:
         if "partialdependence" in method:
             warnings.filterwarnings('ignore')
             x_training = pd.DataFrame(x_training, columns=selected_column_names)
-            PartialDependenceDisplay.from_estimator(classifier, x_training, features=np.arange(x_training.shape[1]), feature_names=selected_column_names)
-            plt.gcf()
-            plt.gca()
-            plt.figure(figsize=(10, 20))
+            n_cols = 2
+            n_rows = int(len(x_training.columns)/n_cols)
+            fig, ax = plt.subplots(n_rows, n_cols, figsize=(10, 12))
+            PartialDependenceDisplay.from_estimator(classifier, x_training, features=np.arange(x_training.shape[1]), feature_names=selected_column_names, ax=ax, n_cols=n_cols)
+            fig.suptitle('Partial Dependence Plots')
+            fig.tight_layout()
             plt.show()
-
 
