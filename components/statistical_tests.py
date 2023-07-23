@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from mlxtend.plotting import checkerboard_plot
 from sklearn.metrics import accuracy_score
 from mlxtend.evaluate import proportion_difference, mcnemar_table, mcnemar, paired_ttest_5x2cv, lift_score
 
@@ -30,6 +31,18 @@ class StatisticalTests:
     def mcnemar_test(self, y_test, first_prediction, second_prediction):
         print("McNemar's test")
         table = mcnemar_table(y_target=y_test, y_model1=first_prediction, y_model2=second_prediction)
+        plot = checkerboard_plot(table,
+                                 fontsize=10,
+                                 figsize=(11, 5),
+                                 fmt='%d',
+                                 col_labels=['Model 2 T', 'Model 2 F'],
+                                 row_labels=['Model 1 T', 'Model 1 F'])
+        fig, ax = plt.subplots(1)
+        plt.axis('off')  # this rows the rectangular frame
+        ax.get_xaxis().set_visible(False)  # this removes the ticks and numbers for x axis
+        ax.get_yaxis().set_visible(False)  # this removes the ticks and numbers for y axis
+
+        plt.show()
         chi2_, p = mcnemar(ary=table, corrected=True)
         print(f"chi² statistic: {chi2_}, p-value: {p}\n")
 

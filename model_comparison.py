@@ -33,7 +33,7 @@ class Comparer:
         data, filename_column = Cleaning().cleaning(data, self.configuration['Data Cleaning'])
         columns = data.columns
 
-        plt.hist(data, bins=5, linewidth=0.5)
+        plt.hist(data["#CodeChurnInFile"], bins=20, linewidth=0.5)
         plt.show()
         print("Shapiro-Wilk test:", shapiro(data))
 
@@ -74,12 +74,18 @@ class Comparer:
         second_model = pickle.load(open(self.path2 + '/classifier.sav', 'rb'))
         second_prediction = pd.read_csv(self.path2 + '/prediction.csv')
 
-        first_prediction = first_prediction.values.flatten()
-        second_prediction = second_prediction.values.flatten()
+        first_prediction = first_model.predict(x_testing)
+        second_prediction = second_model.predict(x_testing)
 
         pd.DataFrame(y_testing).to_csv(self.path1 + "/y_testing_new.csv")
         y_testing_fixed = pd.read_csv(self.path1 + '/y_testing_new.csv').to_numpy().flatten()
         os.remove(self.path1 + "/y_testing_new.csv")
+        pd.DataFrame(first_prediction).to_csv(self.path1 + "/first_prediction_new.csv")
+        first_prediction = pd.read_csv(self.path1 + '/first_prediction_new.csv').to_numpy().flatten()
+        os.remove(self.path1 + "/first_prediction_new.csv")
+        pd.DataFrame(second_prediction).to_csv(self.path1 + "/second_prediction_new.csv")
+        second_prediction = pd.read_csv(self.path1 + '/second_prediction_new.csv').to_numpy().flatten()
+        os.remove(self.path1 + "/second_prediction_new.csv")
 
         StatisticalTests.mcnemar_test(self, y_testing_fixed, first_prediction, second_prediction)
 
