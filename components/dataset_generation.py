@@ -36,5 +36,6 @@ def start(repo_link):
                 print("First hash: ", first_hash)
                 print("Last hash: ", last_hash)
                 repository_scan.metric_calculation_and_writing(first_hash, last_hash, repo_link, writer, -1)
+
         except Exception as e:
             sys.stderr.write(str(e))

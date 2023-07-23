@@ -27,7 +27,6 @@ def metric_calculation_and_writing(start, to, commit_link, writer, label):
     # print('Maximum number of files committed together: {}'.format(maximum))
     # print('Average number of files committed together: {}'.format(average))
 
-
     code_churn = CodeChurn(path_to_repo=commit_link,
                            from_commit=start,
                            to_commit=to)

@@ -27,7 +27,7 @@ class Comparer:
         warnings.filterwarnings('ignore')
 
         # Data setup
-        data = Setup().data_setup(self.dataset)
+        data = Setup().data_setup(self.dataset, training=True)
 
         # Data Cleaning
         data, filename_column = Cleaning().cleaning(data, self.configuration['Data Cleaning'])
