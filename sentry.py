@@ -147,35 +147,36 @@ def main():
                 Metrics().metrics(vulnerable, y_predicted)
                 print("\n\n------------------------------------------------------------\n\n")
 
-        if len(copy['configurations']) < 2 and copy['statistical test'] is not None:
+        if len(copy['configurations']) < 2 and 'statistical test' in copy:
             raise YAMLFileFormatException("There must be at least two configurations to compare them")
-        n = 0
-        for comparison in copy['statistical test']:
-            for i in comparison:
-                if i != n:
-                    raise YAMLFileFormatException("Order of tests is wrong, enter numbers from 0 to N")
-                n += 1
-                if not str(i).isdigit():
-                    raise YAMLFileFormatException("Index must be an integer")
-                pattern = r'^\d+,\s*\d+$'
-                match = re.match(pattern, data['statistical test'][i][i])
-                if match:
-                    numbers = match.group().split(',')
-                    num1, num2 = int(numbers[0]), int(numbers[1])
-                    if num1 == num2:
-                        raise YAMLFileFormatException("You have to compare two different configurations")
-                    if num1 > len(copy['configurations'])-1 or num2 > len(copy['configurations'])-1:
-                        raise YAMLFileFormatException("Input entered not matching the configuration number")
-                else:
-                    raise YAMLFileFormatException("The string entered does not match the format: n,n")
+        elif 'statistical test' in copy:
+            n = 0
+            for comparison in copy['statistical test']:
+                for i in comparison:
+                    if i != n:
+                        raise YAMLFileFormatException("Order of tests is wrong, enter numbers from 0 to N")
+                    n += 1
+                    if not str(i).isdigit():
+                        raise YAMLFileFormatException("Index must be an integer")
+                    pattern = r'^\d+,\s*\d+$'
+                    match = re.match(pattern, data['statistical test'][i][i])
+                    if match:
+                        numbers = match.group().split(',')
+                        num1, num2 = int(numbers[0]), int(numbers[1])
+                        if num1 == num2:
+                            raise YAMLFileFormatException("You have to compare two different configurations")
+                        if num1 > len(copy['configurations'])-1 or num2 > len(copy['configurations'])-1:
+                            raise YAMLFileFormatException("Input entered not matching the configuration number")
+                    else:
+                        raise YAMLFileFormatException("The string entered does not match the format: n,n")
 
-                # Statistical tests
-                print("Statistical tests")
-                path1 = root + "/configuration" + str(num1)
-                path2 = root + "/configuration" + str(num2)
-                comparer = Comparer(data['configurations'][i][i], path_training, path1, path2)
-                # comparer = Comparer(data['configurations'][i][i], "/generated_dataset.csv", path1, path2)
-                comparer.start()
+                    # Statistical tests
+                    print("Statistical tests")
+                    path1 = root + "/configuration" + str(num1)
+                    path2 = root + "/configuration" + str(num2)
+                    comparer = Comparer(data['configurations'][i][i], path_training, path1, path2)
+                    # comparer = Comparer(data['configurations'][i][i], "/generated_dataset.csv", path1, path2)
+                    comparer.start()
 
 
     except Exception as e:
