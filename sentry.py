@@ -5,6 +5,8 @@ import sys
 import pandas as pd
 import requests
 import yaml
+
+from components import dataset_generation
 from components.metrics import Metrics
 from components.setup import Setup
 from dispatcher import Dispatcher
@@ -51,9 +53,9 @@ def main():
 
         repo_link = data["repo"]
 
-        #controlli relativi al yaml file per ogni parametro letto per vedere se ci sono input errati quindi dare
+        # controlli relativi al yaml file per ogni parametro letto per vedere se ci sono input errati quindi dare
         # un messaggio d'errore. Se il parametro non viene inserito dall'utente viene aggiunto con valore default
-        #la copia serve per iterare sulla copia e aggiungere gli elementi default all'originale
+        # la copia serve per iterare mentre si aggiungono gli elementi default all'originale
         copy = dict(data)
         n = 0
         for pipeline in copy['configurations']:
@@ -122,11 +124,11 @@ def main():
                         raise YAMLFileFormatException("Wrong Explaination Method input inserted")
 
         # Generating dataset from repository link
-        # Dataset_generation.start(repo_link=repo_link)
-        dataset = "dataset_pango.csv"
-        to_predict = Setup().data_setup(dataset)
-        vulnerable = to_predict["vulnerable"]
-        to_predict = to_predict.drop(columns=["vulnerable"])
+        dataset_generation.start(repo_link=repo_link)
+        dataset = "generated_dataset.csv"
+        to_predict = Setup().data_setup(dataset, training=False)
+        # vulnerable = to_predict["vulnerable"]
+        # to_predict = to_predict.drop(columns=["vulnerable"])
 
         root = repo_link.rsplit('/', 1)[-1]
         if os.path.exists(root):
@@ -141,10 +143,10 @@ def main():
                 dispatcher = Dispatcher(data['configurations'][i][i], path, to_predict, path_training)
                 dispatcher.start()
 
-                predicted = pd.read_csv(path + "/generated_dataset.csv")
-                y_predicted = predicted["vulnerable"]
-                print("Prediction metrics:")
-                Metrics().metrics(vulnerable, y_predicted)
+                # predicted = pd.read_csv(path + "/generated_dataset.csv")
+                # y_predicted = predicted["vulnerable"]
+                # print("Prediction metrics:")
+                # Metrics().metrics(vulnerable, y_predicted)
                 print("\n\n------------------------------------------------------------\n\n")
 
         if len(copy['configurations']) < 2 and 'statistical test' in copy:
@@ -178,14 +180,14 @@ def main():
                     # comparer = Comparer(data['configurations'][i][i], "/generated_dataset.csv", path1, path2)
                     comparer.start()
 
-
     except Exception as e:
-        print(e.with_traceback(), file=sys.stderr)
+        print(e, file=sys.stderr)
         while True:
             pass
 
     while True:
         pass
+
 
 if __name__ == "__main__":
     main()

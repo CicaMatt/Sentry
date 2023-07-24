@@ -23,7 +23,7 @@ class Dispatcher:
 
     def start(self):
         # Data setup
-        data = Setup().data_setup(self.path_training)
+        data = Setup().data_setup(self.path_training, training=True)
 
         # Data Cleaning
         data, filename_column = Cleaning().cleaning(data, self.data['Data Cleaning'])
