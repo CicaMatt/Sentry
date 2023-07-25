@@ -42,7 +42,7 @@ def main():
     #print(data['configurations'][0][0]['Classifier'])
     try:
         if "dataset" not in data or data["dataset"].lower() == "default":
-            data["dataset"] = "dataset.csv"
+            path_training = "dataset.csv"
         elif not os.path.exists(data["dataset"]):
             raise YAMLFileFormatException("Path to the dataset was not found")
         else:
@@ -116,19 +116,19 @@ def main():
                     if not (validation == "ttsplit" or validation == "kfold" or validation == "stratifiedfold"):
                         raise YAMLFileFormatException("Wrong Validation input inserted")
                 # Explainability
-                if not "Explaination Method" in pipeline[i]:
-                    data['configurations'][i][i]["Explaination Method"] = "default"
+                if not "Explanation Method" in pipeline[i]:
+                    data['configurations'][i][i]["Explanation Method"] = "default"
                 else:
                     explain = pipeline[i]["Explaination Method"].lower()
                     if not ("confusionmatrix" in explain or "permutation" in explain or "partialdependence" in explain):
                         raise YAMLFileFormatException("Wrong Explaination Method input inserted")
 
         # Generating dataset from repository link
-        dataset_generation.start(repo_link=repo_link)
-        dataset = "generated_dataset.csv"
-        to_predict = Setup().data_setup(dataset, training=False)
-        # vulnerable = to_predict["vulnerable"]
-        # to_predict = to_predict.drop(columns=["vulnerable"])
+        # dataset_generation.start(repo_link=repo_link)
+        dataset = "dataset_c.csv"
+        to_predict = Setup().data_setup(filename=dataset, training=False)
+        vulnerable = to_predict["vulnerable"]
+        to_predict = to_predict.drop(columns=["vulnerable"])
 
         root = repo_link.rsplit('/', 1)[-1]
         if os.path.exists(root):
