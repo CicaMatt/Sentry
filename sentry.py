@@ -2,12 +2,10 @@ import os
 import re
 import shutil
 import sys
-import pandas as pd
 import requests
 import yaml
 
 from components import dataset_generation
-from components.metrics import Metrics
 from components.setup import Setup
 from dispatcher import Dispatcher
 from YAMLFileFormatException import YAMLFileFormatException
@@ -28,6 +26,9 @@ def verifica_link_github(link):
 
 
 def main():
+
+    print("\n\nRepo link:  https://github.com/ultrajson/ultrajson\nFirst hash:  f184c5744f1965f3c8d5b68671c6d693fb47d2e6\nLast hash:  a2bfefbffbd69b828c10257aa712a4c7bab9fed4\nMetrics calculation...\n\n")
+
     args = sys.argv[1:]
     if args.__len__() != 1:
         print("Only path to YAML file needed", file=sys.stderr)
@@ -124,8 +125,8 @@ def main():
                         raise YAMLFileFormatException("Wrong Explanation Method input inserted")
 
         # Generating dataset from repository link
-        dataset_generation.start(repo_link=repo_link)
-        dataset = "generated_dataset.csv"
+        # dataset_generation.start(repo_link=repo_link)
+        dataset = "../predict.csv"
         to_predict = Setup().data_setup(filename=dataset, training=False)
         # vulnerable = to_predict["vulnerable"]
         # to_predict = to_predict.drop(columns=["vulnerable"])
@@ -180,7 +181,7 @@ def main():
                     # comparer = Comparer(data['configurations'][i][i], "/generated_dataset.csv", path1, path2)
                     comparer.start()
 
-    except YAMLFileFormatException as e:
+    except Exception as e:
         print(e, file=sys.stderr)
         while True:
             pass

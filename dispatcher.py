@@ -125,8 +125,7 @@ class Dispatcher:
 
                 # Model classification
                 prediction, classifier = Classification().data_classification(x_training, x_testing, y_training, self.data['Classifier'])
-                print(y_testing.shape)
-                print(prediction.shape)
+
 
                 # Metrics calculation
                 accuracy, precision, recall, f1 = Metrics().metrics(y_testing, prediction)
