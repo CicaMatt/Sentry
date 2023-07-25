@@ -1,9 +1,12 @@
 # Sentry: a customizable pipeline for vulnerability prediction
 
 # Download the execution file
-Click on this link to get Sentry: http://bitly.ws/NVHw
+Click on this link to get Sentry: https://shorturl.at/flovB
 
 <br/>
+
+Considering the current limitation of the existing vulnerability prediction systems, our project will have the goal to develop an engineered ML pipeline for training, validating, and exporting a vulnerability prediction model which might potentially be employed within DevOps, with a particular focus on the usability, accessibility and quality of the product.
+
 
 Following a possible version of configuration file:
 ```+yaml
