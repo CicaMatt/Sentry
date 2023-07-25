@@ -35,8 +35,8 @@ class StatisticalTests:
                                  fontsize=10,
                                  figsize=(11, 5),
                                  fmt='%d',
-                                 col_labels=['Model 2 T', 'Model 2 F'],
-                                 row_labels=['Model 1 T', 'Model 1 F'])
+                                 col_labels=['Model 1 T', 'Model 1 F'],
+                                 row_labels=['Model 2 T', 'Model 2 F'])
         fig, ax = plt.subplots(1)
         plt.axis('off')  # this rows the rectangular frame
         ax.get_xaxis().set_visible(False)  # this removes the ticks and numbers for x axis
