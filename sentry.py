@@ -119,16 +119,16 @@ def main():
                 if not "Explanation Method" in pipeline[i]:
                     data['configurations'][i][i]["Explanation Method"] = "default"
                 else:
-                    explain = pipeline[i]["Explaination Method"].lower()
+                    explain = pipeline[i]["Explanation Method"].lower()
                     if not ("confusionmatrix" in explain or "permutation" in explain or "partialdependence" in explain):
-                        raise YAMLFileFormatException("Wrong Explaination Method input inserted")
+                        raise YAMLFileFormatException("Wrong Explanation Method input inserted")
 
         # Generating dataset from repository link
-        # dataset_generation.start(repo_link=repo_link)
-        dataset = "dataset_c.csv"
+        dataset_generation.start(repo_link=repo_link)
+        dataset = "generated_dataset.csv"
         to_predict = Setup().data_setup(filename=dataset, training=False)
-        vulnerable = to_predict["vulnerable"]
-        to_predict = to_predict.drop(columns=["vulnerable"])
+        # vulnerable = to_predict["vulnerable"]
+        # to_predict = to_predict.drop(columns=["vulnerable"])
 
         root = repo_link.rsplit('/', 1)[-1]
         if os.path.exists(root):

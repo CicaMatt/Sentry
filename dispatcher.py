@@ -72,7 +72,7 @@ class Dispatcher:
 
             # Model explanation
             Explainability().explainability(x_training, x_testing, y_testing, self.prediction, self.classifier, self.selected_features,
-                                            self.data['Explaination Method'])
+                                            self.data['Explanation Method'])
 
         # Validation - Standard or Stratified K Fold Validation
         else:
@@ -156,7 +156,7 @@ class Dispatcher:
 
             # Model explanation
             Explainability().explainability(x_training, self.features_testing, self.testing_labels, self.prediction, self.classifier, self.selected_features,
-                                            self.data['Explaination Method'])
+                                            self.data['Explanation Method'])
 
         # Saving splitted data, model, preprocessing components and model prediction
         pd.DataFrame(x_training).to_csv(self.dir_path + "/x_training.csv")
