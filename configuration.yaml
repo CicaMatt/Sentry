@@ -1,20 +1,31 @@
 ---
 
-repo: https://github.com/bratsche/pango
+
+repo: https://github.com/ultrajson/ultrajson
 
 configurations:
-    - 0:
-          Feature Scaling: zscore
-          Data Balancing: smote
-          Classifier: randomforest
-          Validation: ttsplit
-          Explanation Method: permutation
-    - 1:
-          Feature Scaling: minmax
-          Data Balancing: smote
-          Classifier: randomforest
-          Validation: ttsplit
-          Explanation Method: permutation
+   - 0:
+        Feature Scaling: zscore
+        Data Balancing: smote
+        Classifier: svm
+        Validation: ttsplit
+        Explanation Method: confusionmatrix
+
+   - 1:
+       Feature Scaling: zscore
+       Data Balancing: smote
+       Classifier: randomforest
+       Validation: ttsplit
+       Explanation Method: permutation
+
+   - 2:
+       Feature Scaling: zscore
+       Data Balancing: smote
+       Classifier: kneighbors
+       Validation: ttsplit
+       Explanation Method: partialdependence
+
 
 statistical test:
-      - 0: 1, 0
+      - 0: 0, 1
+      - 1: 1, 2

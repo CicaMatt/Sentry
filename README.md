@@ -1,7 +1,7 @@
 # Sentry: a customizable pipeline for vulnerability prediction
 
 # Download the execution file
-Click on this link to get Sentry: https://shorturl.at/flovB
+Click on this link to get Sentry: https://l1nk.dev/T88sq
 
 <br/>
 
@@ -21,7 +21,7 @@ configurations:
           Data Balancing: smote
           Classifier: svm
           Validation: ttsplit
-          Explaination Method: permutation
+          Explanation Method: permutation
     - 1:
           Feature Scaling: minmax
           Feature Selection: kbest
@@ -29,14 +29,14 @@ configurations:
           Data Balancing: smote
           Classifier: randomforest
           Validation: ttsplit
-          Explaination Method: permutation
+          Explanation Method: permutation
     - 2:
           Feature Scaling: minmax
           Feature Selection: pearsoncorrelation
           Data Balancing: oversampling
           Classifier: randomforest
           Validation: kfold
-          Explaination Method: confusionmatrix
+          Explanation Method: confusionmatrix
 
 statistical test:
       - 0: 1, 0
@@ -69,7 +69,7 @@ The possible values for each node are:
   * ttsplit
   * kfold
   * stratifiedfold
-* Explaination Method (not exclusive)
+* Explanation Method (not exclusive)
   * confusionmatrix
   * permutation
   * partialdependence
