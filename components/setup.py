@@ -35,7 +35,7 @@ class Setup:
             #     raise DatasetFormatException("Provide a dataset with integer or float features as "
             #                                  "specified by the accepted format")
 
-        except Exception as e:
+        except DatasetFormatException as e:
             print(e, file=sys.stderr)
             while True:
                 pass

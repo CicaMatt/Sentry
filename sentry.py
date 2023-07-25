@@ -180,7 +180,7 @@ def main():
                     # comparer = Comparer(data['configurations'][i][i], "/generated_dataset.csv", path1, path2)
                     comparer.start()
 
-    except Exception as e:
+    except YAMLFileFormatException as e:
         print(e, file=sys.stderr)
         while True:
             pass
