@@ -73,6 +73,9 @@ class Comparer:
         first_prediction = first_model.predict(x_testing)
         second_prediction = second_model.predict(x_testing)
 
+        StatisticalTests.two_proportions_test(self=self, x_training=x_training, y_training=y_training, x_test=x_testing,
+                                              y_test=y_testing, first_model=first_model, second_model=second_model)
+
         pd.DataFrame(y_testing).to_csv(self.path1 + "/y_testing_new.csv")
         y_testing = pd.read_csv(self.path1 + '/y_testing_new.csv').to_numpy().flatten()
         os.remove(self.path1 + "/y_testing_new.csv")
@@ -90,5 +93,4 @@ class Comparer:
         print("Second model lift score:")
         StatisticalTests.lift_score_test(self, y_testing, second_prediction)
 
-        StatisticalTests.two_proportions_test(self=self, x_training=x_training, y_training=y_training, x_test=x_testing,
-                                              y_test=y_testing, first_model=first_model, second_model=second_model)
+
